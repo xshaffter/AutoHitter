@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Hit manager design</title>
+    <link href="styles.css" rel="stylesheet" />
+    <script src="javascript.js"></script>
+    <style>
+    </style>
+</head>
+<body>
+    <iframe id="run_data_frame" style="display:none;"></iframe>
+    <div class="row">
+        <div class="col-12">
+            <table id="hit-counter">
+                <thead>
+                    <tr>
+                        <th colspan="4">Run #<span id="run_count"></span></th>
+                    </tr>
+                    <tr>
+                        <th>Split (<span id="split"></span> / <span id="split_count"></span>)</th>
+                        <th>Now</th>
+                        <th>Diff</th>
+                        <th>PB</th>
+                    </tr>
+                </thead>
+                <tbody id="splits">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-8"></div>
+        <div class="col-2">
+            <img src="fotf.png" alt="Fury of The Fallen!!!" id="foft" />
+        </div>
+    </div>
+</body>
+</html>
