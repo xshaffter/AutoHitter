@@ -12,6 +12,7 @@ using InControl;
 using AutoHitManager.Cat;
 using AutoHitManager.Managers;
 using Modding.Delegates;
+using System.Timers;
 
 namespace AutoHitManager
 {
@@ -36,13 +37,43 @@ namespace AutoHitManager
             Game = new GameObject();
             Game.AddComponent<BehaviourManager>();
             GameObject.DontDestroyOnLoad(Game);
+            Global.FuryTimer = new Timer
+            {
+                AutoReset = false,
+                Interval = 20_000
+            };
+            Global.FuryTimer.Elapsed += (sender, e) =>
+            {
+                Global.IntentionalHit = false;
+                Global.FuryTimer.Dispose();
+            };
             ModHooks.AfterTakeDamageHook += ManageHit;
             ModHooks.SavegameLoadHook += LoadRun;
             ModHooks.NewGameHook += StartRun;
             ModHooks.AfterPlayerDeadHook += EndRun;
-            ModHooks.SceneChanged += CheckCredits;
+            ModHooks.BeforeSceneLoadHook += CheckScene;
             ModHooks.SetPlayerIntHook += CheckFury;
             ModHooks.CharmUpdateHook += CheckFuryEquipped;
+        }
+
+        // Code that should be run when the mod is disabled.
+        public void Unload()
+        {
+            ModHooks.AfterTakeDamageHook -= ManageHit;
+            ModHooks.SavegameLoadHook -= LoadRun;
+            ModHooks.AfterPlayerDeadHook -= EndRun;
+            ModHooks.BeforeSceneLoadHook -= CheckScene;
+            ModHooks.SetPlayerIntHook -= CheckFury;
+            ModHooks.CharmUpdateHook -= CheckFuryEquipped;
+            LoadedInstance = null;
+            GameObject.DestroyImmediate(Game);
+        }
+
+        private string CheckScene(string name)
+        {
+            CheckCredits(name);
+            CheckProhibitedZone(name);
+            return name;
         }
 
         private void CheckFuryEquipped(PlayerData data, HeroController controller)
@@ -54,17 +85,13 @@ namespace AutoHitManager
             }
         }
 
-        // Code that should be run when the mod is disabled.
-        public void Unload()
+        private void CheckProhibitedZone(string name)
         {
-            ModHooks.AfterTakeDamageHook -= ManageHit;
-            ModHooks.SavegameLoadHook -= LoadRun;
-            ModHooks.AfterPlayerDeadHook -= EndRun;
-            ModHooks.SceneChanged -= CheckCredits;
-            ModHooks.SetPlayerIntHook -= CheckFury;
-            ModHooks.CharmUpdateHook -= CheckFuryEquipped;
-            LoadedInstance = null;
-            GameObject.DestroyImmediate(Game);
+            
+            if (Global.IsProhibitedZone = Constants.ProhibitedZones.Any(zone => name.StartsWith(zone) || name == zone))
+            {
+                Global.IntentionalHit = false;
+            }
         }
 
         private int CheckFury(string name, int orig)
@@ -118,6 +145,12 @@ namespace AutoHitManager
             {
                 Global.PerformHit();
                 Global.IntentionalHit = false;
+                Global.FuryTimer.Stop();
+            } 
+            else
+            {
+                Global.FuryTimer.Stop();
+                Global.FuryTimer.Start();
             }
             return dmg;
         }

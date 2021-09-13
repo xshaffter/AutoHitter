@@ -17,13 +17,15 @@ namespace AutoHitManager.Managers
         public static int CountDown = 0;
         public static void ToggleIntentHit()
         {
+            if (Global.IsProhibitedZone)
+            {
+                return;
+            }
+
             if (Global.IsFuryEquipped && !Global.IntentionalHit)
             {
                 Global.IntentionalHit = true;
-            }
-            else
-            {
-                Global.Log(PlayerData.instance.equippedCharms);
+                Global.FuryTimer.Start();
             }
         }
         #region Actions
@@ -50,12 +52,7 @@ namespace AutoHitManager.Managers
             {
                 Global.LocalSaveData.CurrentSplit++;
                 Global.UpdateRunDataFile();
-                Global.Log($"Split moved from {Global.LocalSaveData.CurrentSplit - 1} to {Global.LocalSaveData.CurrentSplit}");
             } 
-            else
-            {
-                Global.Log($"Split can't be greater than {Global.Splits.Count}");
-            }
         }
 
         public static void PrevSplit()
@@ -64,18 +61,13 @@ namespace AutoHitManager.Managers
             {
                 Global.LocalSaveData.CurrentSplit--;
                 Global.UpdateRunDataFile();
-                Global.Log($"Split moved from {Global.LocalSaveData.CurrentSplit + 1} to {Global.LocalSaveData.CurrentSplit}");
-            }
-            else
-            {
-                Global.Log($"Split can't be lesser than 0");
             }
         }
 
         public static void SetPB()
         {
-            Global.Log("Set new PB!!");
             Global.GlobalSaveData.PB = Global.GlobalSaveData.LastRun;
+            Global.UpdateRunDataFile();
         }
 
         public static void ForceReloadSplits()

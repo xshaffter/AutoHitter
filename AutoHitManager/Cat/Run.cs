@@ -13,5 +13,10 @@ namespace AutoHitManager.Cat
         public bool Ended = false;
         public int number = 0;
         public int Hits() => Splits.Sum(s => s.Hits);
+
+        public override string ToString()
+        {
+            return "";
+        }
     }
 }

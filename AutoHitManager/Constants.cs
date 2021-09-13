@@ -9,7 +9,10 @@ namespace AutoHitManager
     public class Constants
     {
         public static readonly string HTML = "<!DOCTYPE html><html><head><title>HitCounterData</title></head><body><script language='javascript'>let run_data = {0};let splits = {1};let total = {2};parent.DoUpdate(total, splits, run_data);</script></body></html>";
-
+        internal static List<string> ProhibitedZones = new()
+        {
+            "White_Palace"
+        };
         private static string folder = "";
 
         public static string DirFolder

@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 
 using KeyValuePair = System.Collections.Generic.Dictionary<string, int>;
 using AutoHitManager.Managers;
+using System.Timers;
 
 namespace AutoHitManager.Cat
 {
@@ -22,6 +23,8 @@ namespace AutoHitManager.Cat
         public static HitManagerSaveData LocalSaveData { get; set; } = new();
         public static HitManagerGlobalSaveData GlobalSaveData { get; set; } = new();
         private static List<string> splits;
+        public static Timer FuryTimer;
+        internal static bool IsProhibitedZone = false;
 
         public static bool IntentionalHit
         {
@@ -32,14 +35,6 @@ namespace AutoHitManager.Cat
             set
             {
                 fury = value;
-                if (fury)
-                {
-                    Global.Log("Fury of the fallen!!");
-                }
-                else
-                {
-                    Global.Log("Fury of the fallen't!!");
-                }
                 BindableFunctions.CountDown = 0;
                 BindableFunctions.CountUp = 0;
                 UpdateRunDataFile();
@@ -49,20 +44,16 @@ namespace AutoHitManager.Cat
         {
             get
             {
-                Log(LocalSaveData.Run.Splits.Count);
                 if (LocalSaveData.Run.Splits == null || LocalSaveData.Run.Splits.Count <= 0)
                 {
                     LocalSaveData.Run.Splits = new List<Split>();
-                    Log(LocalSaveData.Run.Splits);
                     int index = 0;
                     foreach (var split in Global.splits)
                     {
-                        Log(index);
                         var PB_split = Global.GlobalSaveData.PB?.Splits?.Find(s => s._index == index);
                         LocalSaveData.Run.Splits.Add(new Split {
                             Name = split,
                             Hits = 0,
-                            PB = PB_split?.Hits,
                             _index = index++
                         });
                     }
@@ -103,7 +94,6 @@ namespace AutoHitManager.Cat
             var path_result = Path.Combine(dirFolder, origFile);
             var file = File.Create(path_result);
             stream.CopyTo(file);
-            Log($"Copied file {origFile}");
         }
 
         public static List<T> PaginateList<T>(List<T> list, int actualIndex, int pageSize)
@@ -139,7 +129,7 @@ namespace AutoHitManager.Cat
             string run_data = $"{{split:{LocalSaveData.CurrentSplit}, split_count:{LocalSaveData.Run.Splits.Count()}, run: {LocalSaveData.Run.number}, fury: {IntentionalHit.ToString().ToLower()}}}";
             string total_data = new Split
             {
-                PB = total_pb,
+                ForcedPB = total_pb,
                 Hits = total_hits,
                 Name = "Total:"
             }.ToString();

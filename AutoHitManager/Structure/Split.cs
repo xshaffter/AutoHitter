@@ -11,8 +11,19 @@ namespace AutoHitManager.Structure
         public int _index = -2;
         public string Name;
         public int Hits;
+        public int? ForcedPB = null;
         private int? previous = null;
-        public int? PB;
+        public int? PB
+        {
+            get
+            {
+                if (ForcedPB != null)
+                {
+                    return ForcedPB;
+                }
+                return Global.GlobalSaveData.PB.Splits.Find(split => split.GetIndex() == this.GetIndex()).Hits;
+            }
+        }
         public int Diff 
         {
             get
