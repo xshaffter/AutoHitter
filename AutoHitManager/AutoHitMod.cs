@@ -13,14 +13,22 @@ using AutoHitManager.Cat;
 using AutoHitManager.Managers;
 using Modding.Delegates;
 using System.Timers;
+using Modding.Menu;
+using Modding.Menu.Config;
+using UnityEngine.UI;
+using AutoHitManager.UI.Scenes;
 
 namespace AutoHitManager
 {
-    public class AutoHitMod : Mod, ITogglableMod, ILocalSettings<HitManagerSaveData>, IGlobalSettings<HitManagerGlobalSaveData>
+    public class AutoHitMod : Mod, ITogglableMod, ILocalSettings<HitManagerSaveData>, IGlobalSettings<HitManagerGlobalSaveData>, ICustomMenuMod
     {
         public static AutoHitMod LoadedInstance { get; set; }
 
         public GameObject Game { get; private set; }
+
+        public bool ToggleButtonInsideMenu => true;
+
+        public MenuScreen screen { get; private set; }
 
         public override void Initialize()
         {
@@ -54,6 +62,7 @@ namespace AutoHitManager
             ModHooks.BeforeSceneLoadHook += CheckScene;
             ModHooks.SetPlayerIntHook += CheckFury;
             ModHooks.CharmUpdateHook += CheckFuryEquipped;
+
         }
 
         // Code that should be run when the mod is disabled.
@@ -164,5 +173,20 @@ namespace AutoHitManager
         public HitManagerGlobalSaveData OnSaveGlobal() => Global.GlobalSaveData;
 
         public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+        public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
+        {
+            this.screen = AutoHitMenu.BuildMenu(modListMenu, toggleDelegates);
+            try
+            {
+                Global.RunListMenu = AvailableRunsMenu.BuildMenu(modListMenu, toggleDelegates);
+                Global._ModConfigMenu = SettingsMenu.BuildMenu(modListMenu, toggleDelegates);
+            }
+            catch (Exception ex)
+            {
+                Log(ex.ToString());
+            }
+            return this.screen;
+        }
     }
 }

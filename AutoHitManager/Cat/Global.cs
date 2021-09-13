@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using KeyValuePair = System.Collections.Generic.Dictionary<string, int>;
 using AutoHitManager.Managers;
 using System.Timers;
+using AutoHitManager.UI.Scenes;
 
 namespace AutoHitManager.Cat
 {
@@ -24,7 +25,12 @@ namespace AutoHitManager.Cat
         public static HitManagerGlobalSaveData GlobalSaveData { get; set; } = new();
         private static List<string> splits;
         public static Timer FuryTimer;
-        internal static bool IsProhibitedZone = false;
+        public static bool IsProhibitedZone = false;
+        public static MenuScreen RunListMenu;
+        public static MenuScreen _ModConfigMenu;
+        public static MenuScreen _RunDetailMenu;
+
+
 
         public static bool IntentionalHit
         {
@@ -90,10 +96,13 @@ namespace AutoHitManager.Cat
 
         private static void CopyFileTo(string origFile, string dirFolder)
         {
-            using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"AutoHitManager.Resources.{origFile}");
             var path_result = Path.Combine(dirFolder, origFile);
-            var file = File.Create(path_result);
-            stream.CopyTo(file);
+            if (!File.Exists(path_result))
+            {
+                using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"AutoHitManager.Resources.{origFile}");
+                var file = File.Create(path_result);
+                stream.CopyTo(file);
+            }
         }
 
         public static List<T> PaginateList<T>(List<T> list, int actualIndex, int pageSize)
@@ -160,5 +169,7 @@ namespace AutoHitManager.Cat
                 return Splits[LocalSaveData.CurrentSplit];
             }
         }
+
+        public static int RunDetail = 0;
     }
 }
