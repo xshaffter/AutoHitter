@@ -8,7 +8,7 @@ using HitManagerSplits = System.Collections.Generic.List<AutoHitManager.Structur
 
 namespace AutoHitManager.Cat
 {
-    public class HitManagerGlobalSaveData
+    public class HitManagerGlobalSaveData : ModSettings
     {
         public HitManagerSplits HitManagerDict = new();
         [JsonConverter(typeof(PlayerActionSetConverter))]

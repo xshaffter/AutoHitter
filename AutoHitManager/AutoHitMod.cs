@@ -11,16 +11,14 @@ using System.Reflection;
 using InControl;
 using AutoHitManager.Cat;
 using AutoHitManager.Managers;
-using Modding.Delegates;
 using System.Timers;
 using Modding.Menu;
-using Modding.Menu.Config;
 using UnityEngine.UI;
 using AutoHitManager.UI.Scenes;
 
 namespace AutoHitManager
 {
-    public class AutoHitMod : Mod, ITogglableMod, ILocalSettings<HitManagerSaveData>, IGlobalSettings<HitManagerGlobalSaveData>, ICustomMenuMod
+    public class AutoHitMod : Mod, ITogglableMod
     {
         public static AutoHitMod LoadedInstance { get; set; }
 
@@ -29,6 +27,27 @@ namespace AutoHitManager
         public bool ToggleButtonInsideMenu => true;
 
         public MenuScreen screen { get; private set; }
+
+
+        /// <summary>
+        /// Gets or sets the save settings of this Mod
+        /// </summary>
+        public override ModSettings SaveSettings
+        {
+            get => Global.LocalSaveData;
+            // ReSharper disable once ValueParameterNotUsed overriden by super class
+            set { }
+        }
+
+        /// <summary>
+        /// Gets or sets the global settings of this Mod
+        /// </summary>
+        public override ModSettings GlobalSettings
+        {
+            get => Global.GlobalSaveData;
+            // ReSharper disable once ValueParameterNotUsed overriden by super class
+            set { }
+        }
 
         public override void Initialize()
         {
@@ -50,25 +69,25 @@ namespace AutoHitManager
                 Global.IntentionalHit = false;
                 Global.FuryTimer.Dispose();
             };
-            ModHooks.AfterTakeDamageHook += ManageHit;
-            ModHooks.SavegameLoadHook += LoadRun;
-            ModHooks.NewGameHook += StartRun;
-            ModHooks.AfterPlayerDeadHook += EndRun;
-            ModHooks.BeforeSceneLoadHook += CheckScene;
-            ModHooks.CharmUpdateHook += CheckFuryEquipped;
-            ModHooks.SetPlayerIntHook += CheckPlayerInts;
+            ModHooks.Instance.AfterTakeDamageHook += ManageHit;
+            ModHooks.Instance.SavegameLoadHook += LoadRun;
+            ModHooks.Instance.NewGameHook += StartRun;
+            ModHooks.Instance.AfterPlayerDeadHook += EndRun;
+            ModHooks.Instance.BeforeSceneLoadHook += CheckScene;
+            ModHooks.Instance.CharmUpdateHook += CheckFuryEquipped;
+            ModHooks.Instance.TakeHealthHook += CheckPlayerHealth;
 
         }
 
         // Code that should be run when the mod is disabled.
         public void Unload()
         {
-            ModHooks.AfterTakeDamageHook -= ManageHit;
-            ModHooks.SavegameLoadHook -= LoadRun;
-            ModHooks.AfterPlayerDeadHook -= EndRun;
-            ModHooks.BeforeSceneLoadHook -= CheckScene;
-            ModHooks.CharmUpdateHook -= CheckFuryEquipped;
-            ModHooks.SetPlayerIntHook -= CheckPlayerInts;
+            ModHooks.Instance.AfterTakeDamageHook -= ManageHit;
+            ModHooks.Instance.SavegameLoadHook -= LoadRun;
+            ModHooks.Instance.AfterPlayerDeadHook -= EndRun;
+            ModHooks.Instance.BeforeSceneLoadHook -= CheckScene;
+            ModHooks.Instance.CharmUpdateHook -= CheckFuryEquipped;
+            ModHooks.Instance.TakeHealthHook -= CheckPlayerHealth;
             LoadedInstance = null;
             GameObject.DestroyImmediate(Game);
         }
@@ -134,7 +153,6 @@ namespace AutoHitManager
 
         private int ManageHit(int hazardType, int dmg)
         {
-            var p_health = PlayerData.instance.GetInt("health");
             if ((!Global.IntentionalHit || (Global.IntentionalHit && hazardType != 2)) && !PlayerData.instance.isInvincible)
             {
                 Global.PerformHit();
@@ -148,19 +166,16 @@ namespace AutoHitManager
             }
             return dmg;
         }
-        private int CheckPlayerInts(string name, int orig)
+        private int CheckPlayerHealth(int orig)
         {
-            if (name == "health")
+            if (orig == 1 && Global.IntentionalHit)
             {
-                if (orig == 1 && Global.IntentionalHit)
-                {
-                    Global.IntentionalHit = false;
-                    Global.FuryTimer.Stop();
-                }
-                if (orig < 1 && Global.PracticeMode == "Yes")
-                {
-                    return 1;
-                }
+                Global.IntentionalHit = false;
+                Global.FuryTimer.Stop();
+            }
+            if (orig < 1 && Global.PracticeMode == "Yes")
+            {
+                return 1;
             }
             return orig;
         }
