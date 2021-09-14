@@ -11,13 +11,12 @@ namespace AutoHitManager.Cat
     public class HitManagerGlobalSaveData
     {
         public HitManagerSplits HitManagerDict = new();
-        public Run PB = null;
-        public bool FirstRun = true;
-        public int MaxRun = 1;
         [JsonConverter(typeof(PlayerActionSetConverter))]
         public AutoHitActionSet binds = new();
-        public List<string> splits = new() {};
-        public Run LastRun = null;
+        public RunConfig ActualRun = null;
+        public int MaxVisibleSplits = 10;
+        public int NextId = 1;
 
+        public List<RunConfig> Runs = new();
     }
 }
