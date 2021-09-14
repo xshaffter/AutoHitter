@@ -17,8 +17,11 @@ namespace AutoHitManager.UI.Scenes
     {
         public static MenuScreen BuildMenu(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
         {
+            var boolOptions = new string[] { "Yes", "No" };
+            var MaxSplitOptions = new string[] { "5", "10", "15", "20", "25", "30" };
             var dels = toggleDelegates.Value;
             Action<MenuSelectable> cancelAction = _ => {
+                dels.ApplyChange();
                 UIManager.instance.UIGoToDynamicMenu(AutoHitMod.LoadedInstance.screen);
             };
             return new MenuBuilder(UIManager.instance.UICanvas.gameObject, "AutoHitSettings")
@@ -44,7 +47,54 @@ namespace AutoHitManager.UI.Scenes
                     RegularGridLayout.CreateVerticalLayout(105f),
                     c =>
                     {
-                        c.AddKeybind(
+                        c.AddHorizontalOption(
+                            "MaxVisibleSplits",
+                            new HorizontalOptionConfig
+                            {
+                                Label = "Max visible splits",
+                                CancelAction = cancelAction,
+                                Options = MaxSplitOptions,
+                                Description = new DescriptionInfo
+                                {
+                                    Style = DescriptionStyle.HorizOptionSingleLineVanillaStyle,
+                                    Text = "Max visible splits in your OBS widget"
+                                },
+                                ApplySetting = (_, i) =>
+                                {
+                                    Global.GlobalSaveData.MaxVisibleSplits = int.Parse(MaxSplitOptions[i]);
+                                },
+                                RefreshSetting = (self, _) =>
+                                {
+                                    int index = MaxSplitOptions.ToList().IndexOf(Global.GlobalSaveData.MaxVisibleSplits.ToString());
+                                    self.optionList.SetOptionTo(index);
+                                }
+                            },
+                            out var maxSplitOption
+                        ).AddHorizontalOption(
+                            "PracticeMode",
+                            new HorizontalOptionConfig
+                            {
+                                Label = "Practice mode",
+                                CancelAction = cancelAction,
+                                Options = boolOptions,
+                                Description = new DescriptionInfo
+                                {
+                                    Style = DescriptionStyle.HorizOptionSingleLineVanillaStyle,
+                                    Text = "If activated, your health won't get under 1 point"
+                                },
+                                ApplySetting = (self, _) =>
+                                {
+                                    Global.PracticeMode = self.optionList.GetSelectedOptionText();
+                                },
+                                RefreshSetting = (self, _) =>
+                                {
+                                    int index = boolOptions.ToList().IndexOf(Global.PracticeMode);
+                                    self.optionList.SetOptionTo(index);
+                                }
+                            },
+                            out var practiceMode
+                        )
+                        .AddKeybind(
                             "PrevSplit",
                             Global.GlobalSaveData.binds.prevSplit,
                             new KeybindConfig
@@ -62,15 +112,6 @@ namespace AutoHitManager.UI.Scenes
                                 CancelAction = cancelAction
                             },
                             out var nextSplitKeybind
-                        ).AddKeybind(
-                            "Mark PB",
-                            Global.GlobalSaveData.binds.SetPB,
-                            new KeybindConfig
-                            {
-                                Label = "Set PB",
-                                CancelAction = cancelAction
-                            },
-                            out var markPBKeybind
                         );
                         // should be guaranteed from `MenuBuilder.AddContent`
                         if (c.Layout is RegularGridLayout layout)
@@ -81,6 +122,8 @@ namespace AutoHitManager.UI.Scenes
                         }
                         GridNavGraph navGraph = c.NavGraph as GridNavGraph;
                         navGraph.ChangeColumns(2);
+                        maxSplitOption.GetComponent<MenuSetting>().RefreshValueFromGameSettings();
+                        practiceMode.GetComponent<MenuSetting>().RefreshValueFromGameSettings();
                     }
                 )
                 .AddControls(

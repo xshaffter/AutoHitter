@@ -8,8 +8,11 @@ namespace AutoHitManager.Cat
 {
     public class RunConfig
     {
-        public List<string> Splits;
         public string Name;
         public List<Run> History = new();
+        public Run PB = null;
+        public Run LastRun = null;
+        public int MaxRun = 1;
+        public List<SplitConfig> Splits;
     }
 }

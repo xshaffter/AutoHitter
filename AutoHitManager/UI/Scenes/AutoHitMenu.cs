@@ -65,7 +65,7 @@ namespace AutoHitManager.UI.Scenes
                                 Label = "Reset PB",
                                 SubmitAction = _ =>
                                 {
-                                    Global.GlobalSaveData.PB = null;
+                                    Global.GlobalSaveData.ActualRun.PB = null;
                                 },
                                 CancelAction = cancelAction,
                                 Style = MenuButtonStyle.VanillaStyle
@@ -110,11 +110,7 @@ namespace AutoHitManager.UI.Scenes
                     }
                 )
                 .AddControls(
-                    new SingleContentLayout(new AnchoredPosition(
-                        new Vector2(0.5f, 0.5f),
-                        new Vector2(0.5f, 0.5f),
-                        new Vector2(0f, -64f)
-                    )),
+                    RegularGridLayout.CreateVerticalLayout(105f),
                     c => c.AddMenuButton(
                         "BackButton",
                         new MenuButtonConfig

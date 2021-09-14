@@ -41,7 +41,22 @@ function doUpdateData(total_info, splits, run_data) {
         table.style = "";
         split.textContent = run_data.split + 1;
         split_count.textContent = run_data.split_count;
+        let parent = run_number.parentNode;
         run_number.textContent = run_data.run;
+        if (run_data.practice) {
+            try {
+                parent.textContent = "Practice Run #";
+            }
+            catch (ex) {
+            }
+        } else {
+            try {
+                parent.textContent = "Run #";
+            }
+            catch (ex) {
+            }
+        }
+        parent.appendChild(run_number);
         if (run_data.fury) {
             foft.classList = foft.classList.remove("hidden");
         } else {

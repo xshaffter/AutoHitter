@@ -8,8 +8,9 @@ namespace AutoHitManager.Structure
 {
     public class Split
     {
+        public string ForcedName = null;
         public int _index = -2;
-        public string Name;
+        public int splitID = 0;
         public int Hits;
         public int? ForcedPB = null;
         private int? previous = null;
@@ -21,7 +22,35 @@ namespace AutoHitManager.Structure
                 {
                     return ForcedPB;
                 }
-                return Global.GlobalSaveData.PB.Splits.Find(split => split.GetIndex() == this.GetIndex()).Hits;
+                return PBSplit?.Hits ?? 0;
+            }
+        }
+
+        public SplitConfig Config
+        {
+            get
+            {
+                return Global.GlobalSaveData.ActualRun.Splits.Find(config => config.Id == this.splitID);
+            }
+        }
+
+        public string Name 
+        {
+            get
+            {
+                if (ForcedName != null)
+                {
+                    return this.ForcedName;
+                }
+                return this.Config.Name;
+            }
+        }
+        public Split PBSplit
+        {
+            get
+            {
+                if (Global.GlobalSaveData.ActualRun.PB == null) return null;
+                return Global.GlobalSaveData.ActualRun.PB?.Splits?.Find(split => split.splitID == this.splitID);
             }
         }
         public int Diff 
@@ -45,7 +74,7 @@ namespace AutoHitManager.Structure
             {
                 try
                 {
-                    previous = Global.GlobalSaveData.PB.Splits.Where(split => split.GetIndex() < this.GetIndex()).Sum(split => split.Hits);
+                    previous = Global.GlobalSaveData.ActualRun.PB.Splits.Where(split => split.GetIndex() < PBSplit.GetIndex()).Sum(split => split.Hits);
                 }
                 catch
                 {

@@ -31,11 +31,12 @@ namespace AutoHitManager.Managers
         #region Actions
         public static void FuryStep(int type)
         {
-            if (type == UP && CountUp == CountDown)
+            bool isFuryAvailable = PlayerData.instance.GetInt("health") > 1;
+            if (type == UP && CountUp == CountDown && isFuryAvailable)
             {
                 CountUp++;
             }
-            else if (type == DOWN && CountUp > CountDown)
+            else if (type == DOWN && CountUp > CountDown && isFuryAvailable)
             {
                 CountDown++;
             }
@@ -66,14 +67,12 @@ namespace AutoHitManager.Managers
 
         public static void SetPB()
         {
-            Global.GlobalSaveData.PB = Global.GlobalSaveData.LastRun;
+            Global.GlobalSaveData.ActualRun.PB = Global.GlobalSaveData.ActualRun.LastRun;
             Global.UpdateRunDataFile();
         }
 
         public static void ForceReloadSplits()
         {
-            var settings = Path.Combine(Constants.DirFolder, "settings.json");
-            Global.ReadSettings(settings);
         }
         #endregion Actions
     }

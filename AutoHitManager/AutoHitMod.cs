@@ -35,11 +35,6 @@ namespace AutoHitManager
             if (LoadedInstance != null) return;
             LoadedInstance = this;
 
-            if (Global.GlobalSaveData.FirstRun)
-            {
-                Global.GlobalSaveData.FirstRun = false;
-            }
-
             Global.GenerateWidget();
 
             Game = new GameObject();
@@ -60,8 +55,8 @@ namespace AutoHitManager
             ModHooks.NewGameHook += StartRun;
             ModHooks.AfterPlayerDeadHook += EndRun;
             ModHooks.BeforeSceneLoadHook += CheckScene;
-            ModHooks.SetPlayerIntHook += CheckFury;
             ModHooks.CharmUpdateHook += CheckFuryEquipped;
+            ModHooks.SetPlayerIntHook += CheckPlayerInts;
 
         }
 
@@ -72,8 +67,8 @@ namespace AutoHitManager
             ModHooks.SavegameLoadHook -= LoadRun;
             ModHooks.AfterPlayerDeadHook -= EndRun;
             ModHooks.BeforeSceneLoadHook -= CheckScene;
-            ModHooks.SetPlayerIntHook -= CheckFury;
             ModHooks.CharmUpdateHook -= CheckFuryEquipped;
+            ModHooks.SetPlayerIntHook -= CheckPlayerInts;
             LoadedInstance = null;
             GameObject.DestroyImmediate(Game);
         }
@@ -96,20 +91,11 @@ namespace AutoHitManager
 
         private void CheckProhibitedZone(string name)
         {
-            
+
             if (Global.IsProhibitedZone = Constants.ProhibitedZones.Any(zone => name.StartsWith(zone) || name == zone))
             {
                 Global.IntentionalHit = false;
             }
-        }
-
-        private int CheckFury(string name, int orig)
-        {
-            if (name == "health" && orig == 1 && Global.IntentionalHit)
-            {
-                Global.IntentionalHit = false;
-            }
-            return orig;
         }
 
         private void CheckCredits(string name)
@@ -122,7 +108,7 @@ namespace AutoHitManager
 
         private void EndRun()
         {
-            Global.GlobalSaveData.LastRun = Global.LocalSaveData.Run;
+            Global.GlobalSaveData.ActualRun.LastRun = Global.LocalSaveData.Run;
             Global.LocalSaveData.Run.Ended = true;
         }
 
@@ -133,13 +119,11 @@ namespace AutoHitManager
 
         private void StartRun()
         {
-            var settings = Path.Combine(Constants.DirFolder, "settings.json");
-            Global.ReadSettings(settings);
             if (Global.LocalSaveData.NewRun)
             {
                 Global.LocalSaveData.Run = new()
                 {
-                    number = Global.GlobalSaveData.MaxRun++,
+                    number = Global.GlobalSaveData.ActualRun.MaxRun++,
                     Ended = false,
                     Splits = new()
                 };
@@ -150,6 +134,7 @@ namespace AutoHitManager
 
         private int ManageHit(int hazardType, int dmg)
         {
+            var p_health = PlayerData.instance.GetInt("health");
             if ((!Global.IntentionalHit || (Global.IntentionalHit && hazardType != 2)) && !PlayerData.instance.isInvincible)
             {
                 Global.PerformHit();
@@ -163,12 +148,56 @@ namespace AutoHitManager
             }
             return dmg;
         }
+        private int CheckPlayerInts(string name, int orig)
+        {
+            if (name == "health")
+            {
+                if (orig == 1 && Global.IntentionalHit)
+                {
+                    Global.IntentionalHit = false;
+                    Global.FuryTimer.Stop();
+                }
+                if (orig < 1 && Global.PracticeMode == "Yes")
+                {
+                    return 1;
+                }
+            }
+            return orig;
+        }
 
         public void OnLoadLocal(HitManagerSaveData s) => Global.LocalSaveData = s;
 
         public HitManagerSaveData OnSaveLocal() => Global.LocalSaveData;
 
-        public void OnLoadGlobal(HitManagerGlobalSaveData s) => Global.GlobalSaveData = s;
+        public void OnLoadGlobal(HitManagerGlobalSaveData s)
+        {
+            Global.GlobalSaveData = s;
+            if (s.Runs.Count == 0)
+            {
+
+                Global.GlobalSaveData.Runs.Add(new RunConfig
+                {
+                    Name = "Any %",
+                    Splits = new List<SplitConfig> {
+                        new SplitConfig("False Knight"),
+                        new SplitConfig("Hornet"),
+                        new SplitConfig("Mantis Claw"),
+                        new SplitConfig("Gruz Mother"),
+                        new SplitConfig("Crystal Heart"),
+                        new SplitConfig("Shade Soul"),
+                        new SplitConfig("Monomon"),
+                        new SplitConfig("Herrah"),
+                        new SplitConfig("Lurien"),
+                        new SplitConfig("Hollow Knight")
+                    }
+                });
+            }
+
+            if (Global.GlobalSaveData.ActualRun == null)
+            {
+                Global.GlobalSaveData.ActualRun = Global.GlobalSaveData.Runs.First();
+            }
+        }
 
         public HitManagerGlobalSaveData OnSaveGlobal() => Global.GlobalSaveData;
 
