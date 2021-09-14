@@ -14,13 +14,13 @@ namespace AutoHitManager.UI.Scenes
 {
     public static class AvailableRunsMenu
     {
-        public static MenuScreen BuildMenu(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
+        public static MenuScreen BuildMenu(MenuScreen previousScreen)
         {
-            var dels = toggleDelegates.Value;
             Action<MenuSelectable> cancelAction = _ => {
-                UIManager.instance.UIGoToDynamicMenu(AutoHitMod.LoadedInstance.screen);
+                UIManager.instance.UIGoToDynamicMenu(previousScreen);
             };
-            return new MenuBuilder(UIManager.instance.UICanvas.gameObject, "RunList")
+            MenuScreen menu = null;
+            menu = new MenuBuilder(UIManager.instance.UICanvas.gameObject, "RunList")
                 .CreateTitle("Runs", MenuTitleStyle.vanillaStyle)
                 .CreateContentPane(RectTransformData.FromSizeAndPos(
                     new RelVector2(new Vector2(1920f, 903f)),
@@ -53,7 +53,7 @@ namespace AutoHitManager.UI.Scenes
                                     SubmitAction = _ =>
                                     {
                                         Global.RunDetail = Global.GlobalSaveData.Runs.IndexOf(run);
-                                        UIManager.instance.UIGoToDynamicMenu(RunDetailMenu.BuildMenu());
+                                        UIManager.instance.UIGoToDynamicMenu(RunDetailMenu.BuildMenu(menu));
                                     },
                                     CancelAction = cancelAction,
                                     Style = MenuButtonStyle.VanillaStyle
@@ -99,6 +99,7 @@ namespace AutoHitManager.UI.Scenes
                     }
                 )
                 .Build();
+            return menu;
         }
     }
 }

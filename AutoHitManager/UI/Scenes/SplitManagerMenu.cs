@@ -44,7 +44,7 @@ namespace AutoHitManager.UI.Scenes
                 ))
                 .SetDefaultNavGraph(new GridNavGraph(1))
                 .AddContent(
-                    RegularGridLayout.CreateVerticalLayout(105f),
+                    RegularGridLayout.CreateVerticalLayout(90f),
                     c =>
                     {
                         c.AddScrollPaneContent(new ScrollbarConfig
@@ -72,9 +72,8 @@ namespace AutoHitManager.UI.Scenes
                                         Label = split.Name,
                                         CancelAction = cancelAction,
                                         Style = MenuButtonStyle.VanillaStyle,
-                                        SubmitAction = _ =>
-                                        {
-                                        }
+                                        SubmitAction = _ => { },
+                                        Proceed = true
                                     }
                                 );
                             }
@@ -83,7 +82,7 @@ namespace AutoHitManager.UI.Scenes
                         if (c.Layout is RegularGridLayout layout)
                         {
                             var l = layout.ItemAdvance;
-                            l.x = new RelLength(750f);
+                            l.x = new RelLength(300f);
                             layout.ChangeColumns(2, 0.5f, l, 0.5f);
                         }
                         GridNavGraph navGraph = c.NavGraph as GridNavGraph;

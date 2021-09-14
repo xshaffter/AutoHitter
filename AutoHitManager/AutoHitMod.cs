@@ -206,15 +206,6 @@ namespace AutoHitManager
         public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
         {
             this.screen = AutoHitMenu.BuildMenu(modListMenu, toggleDelegates);
-            try
-            {
-                Global.RunListMenu = AvailableRunsMenu.BuildMenu(modListMenu, toggleDelegates);
-                Global._ModConfigMenu = SettingsMenu.BuildMenu(modListMenu, toggleDelegates);
-            }
-            catch (Exception ex)
-            {
-                Log(ex.ToString());
-            }
             return this.screen;
         }
     }

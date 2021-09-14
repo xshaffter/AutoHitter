@@ -14,18 +14,13 @@ namespace AutoHitManager.UI.Scenes
 {
     public static class RunDetailMenu
     {
-        public static MenuScreen BuildMenu()
+        public static MenuScreen BuildMenu(MenuScreen previousScreen)
         {
             var run = Global.GlobalSaveData.Runs[Global.RunDetail];
-            Global.Log(run.Name);
-            Action<MenuSelectable> cancelAction = _ =>
-            {
-                UIManager.instance.UIGoToDynamicMenu(AutoHitMod.LoadedInstance.screen);
-            };
-            Action<MenuPreventDeselect> cancelAction2 = _ =>
-            {
-                UIManager.instance.UIGoToDynamicMenu(AutoHitMod.LoadedInstance.screen);
-            };
+            void cancelAction(MenuSelectable _)
+            { 
+                UIManager.instance.UIGoToDynamicMenu(previousScreen);
+            }
             MenuScreen menu = null;
             menu = new MenuBuilder(UIManager.instance.UICanvas.gameObject, "RunDetailMenu")
                 .CreateTitle(run.Name, MenuTitleStyle.vanillaStyle)
@@ -66,7 +61,7 @@ namespace AutoHitManager.UI.Scenes
                         )
                         .AddScrollPaneContent(new ScrollbarConfig
                         {
-                            CancelAction = cancelAction2,
+                            CancelAction = _ => { },
                             Navigation = new Navigation { mode = Navigation.Mode.Explicit },
                             Position = new AnchoredPosition
                             {
@@ -80,6 +75,8 @@ namespace AutoHitManager.UI.Scenes
                         RegularGridLayout.CreateVerticalLayout(105f),
                         scroll =>
                         {
+                            var rt = c.ContentObject.GetComponent<RectTransform>();
+                            rt.sizeDelta = new Vector2(0f, rt.sizeDelta.y + 105f);
                             foreach (var run in run.History)
                             {
                                 c.AddMenuButton(
@@ -100,7 +97,7 @@ namespace AutoHitManager.UI.Scenes
                         if (c.Layout is RegularGridLayout layout)
                         {
                             var l = layout.ItemAdvance;
-                            l.x = new RelLength(750f);
+                            l.x = new RelLength(500f);
                             layout.ChangeColumns(2, 0.5f, l, 0.5f);
                         }
                         GridNavGraph navGraph = c.NavGraph as GridNavGraph;

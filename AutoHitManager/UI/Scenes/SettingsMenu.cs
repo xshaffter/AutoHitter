@@ -15,14 +15,12 @@ namespace AutoHitManager.UI.Scenes
 {
     public static class SettingsMenu
     {
-        public static MenuScreen BuildMenu(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
+        public static MenuScreen BuildMenu(MenuScreen previousScreen)
         {
             var boolOptions = new string[] { "Yes", "No" };
             var MaxSplitOptions = new string[] { "5", "10", "15", "20", "25", "30" };
-            var dels = toggleDelegates.Value;
             Action<MenuSelectable> cancelAction = _ => {
-                dels.ApplyChange();
-                UIManager.instance.UIGoToDynamicMenu(AutoHitMod.LoadedInstance.screen);
+                UIManager.instance.UIGoToDynamicMenu(previousScreen);
             };
             return new MenuBuilder(UIManager.instance.UICanvas.gameObject, "AutoHitSettings")
                 .CreateTitle("Config", MenuTitleStyle.vanillaStyle)
