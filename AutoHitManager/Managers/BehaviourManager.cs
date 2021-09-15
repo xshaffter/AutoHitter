@@ -24,10 +24,6 @@ namespace AutoHitManager.Managers
             {
                 BindableFunctions.FuryStep(BindableFunctions.DOWN);
             }
-            else if (Global.GlobalSaveData.binds.SetPB.WasPressed)
-            {
-                BindableFunctions.SetPB();
-            }
         }
     }
 }

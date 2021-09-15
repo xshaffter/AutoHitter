@@ -1,10 +1,12 @@
 ﻿using AutoHitManager.Cat;
+using AutoHitManager.UI.Managers;
 using Modding.Menu;
 using Modding.Menu.Config;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,33 +15,38 @@ namespace AutoHitManager.UI.Scenes
 {
     public static class SplitManagerMenu
     {
+        public const int RENAME = 0;
+        public const int BEFORE = 1;
+        public const int AFTER = 2;
+        public const int DELETE = 3;
+        internal static int buttonBehaviour = RENAME;
+        internal static MenuScreen PreviousScreen;
+
 
         public static MenuScreen BuildMenu(MenuScreen previousScreen)
         {
+            PreviousScreen = previousScreen;
             var run = Global.GlobalSaveData.Runs[Global.RunDetail];
-            Action<MenuSelectable> cancelAction = _ => {
-                UIManager.instance.UIGoToDynamicMenu(previousScreen);
-            };
-            Action<MenuPreventDeselect> cancelAction2 = _ =>
+            void cancelAction(MenuSelectable _)
             {
                 UIManager.instance.UIGoToDynamicMenu(previousScreen);
-            };
-            return new MenuBuilder(UIManager.instance.UICanvas.gameObject, "AutoHitSettings")
+            }
+            var _menu = new MenuBuilder(UIManager.instance.UICanvas.gameObject, "AutoHitSettings")
                 .CreateTitle("Config", MenuTitleStyle.vanillaStyle)
                 .CreateContentPane(RectTransformData.FromSizeAndPos(
-                    new RelVector2(new Vector2(1920f, 903f)),
+                    new RelVector2(new Vector2(1920f, 603f)),
                     new AnchoredPosition(
                         new Vector2(0.5f, 0.5f),
                         new Vector2(0.5f, 0.5f),
-                        new Vector2(0f, -60f)
+                        new Vector2(0f, 60f)
                     )
                 ))
                 .CreateControlPane(RectTransformData.FromSizeAndPos(
-                    new RelVector2(new Vector2(1920f, 259f)),
+                    new RelVector2(new Vector2(1920f, 559f)),
                     new AnchoredPosition(
                         new Vector2(0.5f, 0.5f),
                         new Vector2(0.5f, 0.5f),
-                        new Vector2(0f, -502f)
+                        new Vector2(0f, -602f)
                     )
                 ))
                 .SetDefaultNavGraph(new GridNavGraph(1))
@@ -49,7 +56,7 @@ namespace AutoHitManager.UI.Scenes
                     {
                         c.AddScrollPaneContent(new ScrollbarConfig
                          {
-                             CancelAction = cancelAction2,
+                             CancelAction = _ => { },
                              Navigation = new Navigation { mode = Navigation.Mode.Explicit },
                              Position = new AnchoredPosition
                              {
@@ -65,50 +72,78 @@ namespace AutoHitManager.UI.Scenes
                         {
                             foreach (var split in run.Splits)
                             {
-                                c.AddMenuButton(
+                                var rt = scroll.ContentObject.GetComponent<RectTransform>();
+                                rt.sizeDelta = new Vector2(0f, rt.sizeDelta.y + 105f);
+                                scroll.AddMenuButton(
                                     split.Name,
                                     new MenuButtonConfig
                                     {
                                         Label = split.Name,
                                         CancelAction = cancelAction,
                                         Style = MenuButtonStyle.VanillaStyle,
-                                        SubmitAction = _ => { },
+                                        SubmitAction = btn => KeyboardManager.UsageButton(run, split),
                                         Proceed = true
                                     }
                                 );
                             }
                         });
-                        // should be guaranteed from `MenuBuilder.AddContent`
-                        if (c.Layout is RegularGridLayout layout)
-                        {
-                            var l = layout.ItemAdvance;
-                            l.x = new RelLength(300f);
-                            layout.ChangeColumns(2, 0.5f, l, 0.5f);
-                        }
-                        GridNavGraph navGraph = c.NavGraph as GridNavGraph;
-                        navGraph.ChangeColumns(2);
                     }
                 )
                 .AddControls(
-                    new SingleContentLayout(new AnchoredPosition(
-                        new Vector2(0.5f, 0.5f),
-                        new Vector2(0.5f, 0.5f),
-                        new Vector2(0f, -64f)
-                    )),
-                    c => c.AddMenuButton(
-                        "BackButton",
-                        new MenuButtonConfig
-                        {
-                            Label = "Back",
-                            CancelAction = cancelAction,
-                            SubmitAction = cancelAction,
-                            Style = MenuButtonStyle.VanillaStyle,
-                            Proceed = true
-                        },
-                        out var backButton
-                    )
+                    RegularGridLayout.CreateVerticalLayout(105f),
+                    c =>
+                    {
+                        c.AddMenuButton(
+                            "SplitBefore",
+                            new MenuButtonConfig
+                            {
+                                Label = "Add Split Before",
+                                CancelAction = cancelAction,
+                                SubmitAction = _ =>
+                                {
+                                    buttonBehaviour = BEFORE;
+                                },
+                                Style = MenuButtonStyle.VanillaStyle,
+                            }
+                        ).AddMenuButton(
+                            "SplitAfter",
+                            new MenuButtonConfig
+                            {
+                                Label = "Add Split After",
+                                CancelAction = cancelAction,
+                                SubmitAction = _ =>
+                                {
+                                    buttonBehaviour = AFTER;
+                                },
+                                Style = MenuButtonStyle.VanillaStyle,
+                            }
+                        ).AddMenuButton(
+                            "SplitDelete",
+                            new MenuButtonConfig
+                            {
+                                Label = "Delete Split",
+                                CancelAction = cancelAction,
+                                SubmitAction = _ =>
+                                {
+                                    buttonBehaviour = DELETE;
+                                },
+                                Style = MenuButtonStyle.VanillaStyle,
+                            }
+                        ).AddMenuButton(
+                            "BackButton",
+                            new MenuButtonConfig
+                            {
+                                Label = "Back",
+                                CancelAction = cancelAction,
+                                SubmitAction = cancelAction,
+                                Style = MenuButtonStyle.VanillaStyle,
+                                Proceed = true
+                            }
+                        );
+                    }
                 )
                 .Build();
+            return _menu;
         }
     }
 }

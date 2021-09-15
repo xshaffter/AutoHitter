@@ -13,6 +13,7 @@ namespace AutoHitManager.Cat
         public Run PB = null;
         public Run LastRun = null;
         public int MaxRun = 1;
-        public List<SplitConfig> Splits;
+        public List<SplitConfig> Splits = new();
+        public int Id;
     }
 }

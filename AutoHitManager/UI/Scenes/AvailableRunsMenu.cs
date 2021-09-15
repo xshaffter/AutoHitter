@@ -1,4 +1,5 @@
 ﻿using AutoHitManager.Cat;
+using AutoHitManager.UI.Managers;
 using Modding;
 using Modding.Menu;
 using Modding.Menu.Config;
@@ -14,11 +15,18 @@ namespace AutoHitManager.UI.Scenes
 {
     public static class AvailableRunsMenu
     {
+        internal static MenuScreen PreviousScreen;
+        internal static int buttonBehaviour;
+        internal static int VIEW = 0;
+        internal static int EDIT = 1;
+
         public static MenuScreen BuildMenu(MenuScreen previousScreen)
         {
-            Action<MenuSelectable> cancelAction = _ => {
+            PreviousScreen = previousScreen;
+            void cancelAction(MenuSelectable _)
+            {
                 UIManager.instance.UIGoToDynamicMenu(previousScreen);
-            };
+            }
             MenuScreen menu = null;
             menu = new MenuBuilder(UIManager.instance.UICanvas.gameObject, "RunList")
                 .CreateTitle("Runs", MenuTitleStyle.vanillaStyle)
@@ -35,40 +43,77 @@ namespace AutoHitManager.UI.Scenes
                     new AnchoredPosition(
                         new Vector2(0.5f, 0.5f),
                         new Vector2(0.5f, 0.5f),
-                        new Vector2(0f, -502f)
+                        new Vector2(0f, -652f)
                     )
                 ))
                 .SetDefaultNavGraph(new GridNavGraph(1))
                 .AddContent(
                     RegularGridLayout.CreateVerticalLayout(105f),
                     c => {
-                        foreach (var run in Global.GlobalSaveData.Runs)
+                        c.AddScrollPaneContent(new ScrollbarConfig
                         {
-                            c.AddMenuButton
-                            (
-                                run.Name,
-                                new MenuButtonConfig
+                            CancelAction = _ => { },
+                            Navigation = new Navigation { mode = Navigation.Mode.Explicit },
+                            Position = new AnchoredPosition
+                            {
+                                ChildAnchor = new Vector2(0f, 1f),
+                                ParentAnchor = new Vector2(1f, 1f),
+                                Offset = new Vector2(-310f, 0f)
+                            },
+                            SelectionPadding = _ => (-60, 0)
+                        },
+                        new RelLength(0f),
+                        RegularGridLayout.CreateVerticalLayout(105f),
+                        scroll =>
+                        {
+                            if (Global.GlobalSaveData.Runs.Count > 0)
+                            {
+                                foreach (var run in Global.GlobalSaveData.Runs)
                                 {
-                                    Label = $"View {run.Name} run",
-                                    SubmitAction = _ =>
-                                    {
-                                        Global.RunDetail = Global.GlobalSaveData.Runs.IndexOf(run);
-                                        UIManager.instance.UIGoToDynamicMenu(RunDetailMenu.BuildMenu(menu));
-                                    },
-                                    CancelAction = cancelAction,
-                                    Style = MenuButtonStyle.VanillaStyle
+                                    var rt = scroll.ContentObject.GetComponent<RectTransform>();
+                                    rt.sizeDelta = new Vector2(0f, rt.sizeDelta.y + 105f);
+                                    scroll.AddMenuButton
+                                    (
+                                        run.Name,
+                                        new MenuButtonConfig
+                                        {
+                                            Label = $"View {run.Name} run",
+                                            SubmitAction = _ =>
+                                            {
+                                                if (buttonBehaviour == VIEW)
+                                                {
+                                                    Global.RunDetail = Global.GlobalSaveData.Runs.IndexOf(run);
+                                                    UIManager.instance.UIGoToDynamicMenu(RunDetailMenu.BuildMenu(menu));
+                                                }
+                                                else
+                                                {
+                                                    KeyboardRunEdit.UsageButton(run);
+                                                }
+                                            },
+                                            CancelAction = cancelAction,
+                                            Style = MenuButtonStyle.VanillaStyle
+                                        }
+                                    );
                                 }
-                            );
-                        }
-                        // should be guaranteed from `MenuBuilder.AddContent`
-                        if (c.Layout is RegularGridLayout layout)
-                        {
-                            var l = layout.ItemAdvance;
-                            l.x = new RelLength(750f);
-                            layout.ChangeColumns(2, 0.5f, l, 0.5f);
-                        }
-                        GridNavGraph navGraph = c.NavGraph as GridNavGraph;
-                        navGraph.ChangeColumns(2);
+                            }
+                            else
+                            {
+                                var rt = scroll.ContentObject.GetComponent<RectTransform>();
+                                rt.sizeDelta = new Vector2(0f, rt.sizeDelta.y + 105f);
+                                scroll.AddTextPanel
+                                (
+                                    "No Runs",
+                                    new RelVector2(new Vector2(500f, MenuButtonStyle.VanillaStyle.TextSize)),
+                                    new TextPanelConfig
+                                    {
+                                        Text = $"There is no runs available",
+                                        Font = TextPanelConfig.TextFont.TrajanRegular,
+                                        Size = MenuButtonStyle.VanillaStyle.TextSize,
+                                        Anchor = TextAnchor.MiddleCenter
+                                    }
+                                );
+                            }
+                        });
                     }
                 )
                 .AddControls(
@@ -76,12 +121,32 @@ namespace AutoHitManager.UI.Scenes
                     c =>
                     {
                         c.AddMenuButton(
+                            "Edit",
+                            new MenuButtonConfig
+                            {
+                                Label = "Edit",
+                                CancelAction = cancelAction,
+                                SubmitAction = _ =>
+                                {
+                                    buttonBehaviour = EDIT;
+                                },
+                                Style = MenuButtonStyle.VanillaStyle,
+                            }
+                        ).AddMenuButton(
                             "AddButton",
                             new MenuButtonConfig
                             {
                                 Label = "add Run",
                                 CancelAction = cancelAction,
-                                SubmitAction = cancelAction,
+                                SubmitAction = _ =>
+                                {
+                                    Global.GlobalSaveData.Runs.Add(new RunConfig
+                                    {
+                                        Name = "Dummy",
+                                        Splits = new List<SplitConfig> { new SplitConfig("Dummy split") }
+                                    });
+                                    UIManager.instance.UIGoToDynamicMenu(AvailableRunsMenu.BuildMenu(PreviousScreen));
+                                },
                                 Style = MenuButtonStyle.VanillaStyle
                             },
                             out var addButton

@@ -17,11 +17,11 @@ namespace AutoHitManager.UI.Scenes
         public static MenuScreen BuildMenu(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
         {
             var dels = toggleDelegates.Value;
-            Action<MenuSelectable> cancelAction = _ =>
+            void cancelAction(MenuSelectable _)
             {
                 dels.ApplyChange();
                 UIManager.instance.UIGoToDynamicMenu(modListMenu);
-            };
+            }
             MenuScreen menu = null;
             menu = new MenuBuilder(UIManager.instance.UICanvas.gameObject, "AutoHit")
                 .CreateTitle("AutoHit", MenuTitleStyle.vanillaStyle)
@@ -56,18 +56,6 @@ namespace AutoHitManager.UI.Scenes
                                 CancelAction = cancelAction
                             },
                             out var toggleModOption
-                        ).AddMenuButton(
-                            "Reset PB",
-                            new MenuButtonConfig
-                            {
-                                Label = "Reset PB",
-                                SubmitAction = _ =>
-                                {
-                                    Global.GlobalSaveData.ActualRun.PB = null;
-                                },
-                                CancelAction = cancelAction,
-                                Style = MenuButtonStyle.VanillaStyle
-                            }
                         ).AddMenuButton(
                             "Runs",
                             new MenuButtonConfig

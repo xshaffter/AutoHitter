@@ -28,7 +28,7 @@ namespace AutoHitManager
 
         public bool ToggleButtonInsideMenu => true;
 
-        public MenuScreen screen { get; private set; }
+        public MenuScreen Screen { get; private set; }
 
         public override void Initialize()
         {
@@ -48,7 +48,6 @@ namespace AutoHitManager
             Global.FuryTimer.Elapsed += (sender, e) =>
             {
                 Global.IntentionalHit = false;
-                Global.FuryTimer.Dispose();
             };
             ModHooks.AfterTakeDamageHook += ManageHit;
             ModHooks.SavegameLoadHook += LoadRun;
@@ -56,7 +55,44 @@ namespace AutoHitManager
             ModHooks.AfterPlayerDeadHook += EndRun;
             ModHooks.BeforeSceneLoadHook += CheckScene;
             ModHooks.CharmUpdateHook += CheckFuryEquipped;
-            ModHooks.SetPlayerIntHook += CheckPlayerInts;
+            ModHooks.SetPlayerIntHook += CheckPlayerHealth;
+
+
+            try
+            {
+                if (Global.GlobalSaveData.Runs.Count == 0)
+                {
+
+                    Global.GlobalSaveData.Runs.Add(new RunConfig
+                    {
+                        Id = Global.GlobalSaveData.NextRunId++,
+                        Name = "Any %",
+                        Splits = new List<SplitConfig> {
+                        new SplitConfig("False Knight"),
+                        new SplitConfig("Fireball"),
+                        new SplitConfig("Hornet"),
+                        new SplitConfig("Mantis Claw"),
+                        new SplitConfig("Gruz Mother"),
+                        new SplitConfig("Crystal Heart"),
+                        new SplitConfig("Shade Soul"),
+                        new SplitConfig("Monomon"),
+                        new SplitConfig("Herrah"),
+                        new SplitConfig("Lurien"),
+                        new SplitConfig("Hollow Knight")
+                    }
+                    });
+                }
+            }
+            catch { }
+
+            try
+            {
+                if (Global.GlobalSaveData.ActualRun == null)
+                {
+                    Global.GlobalSaveData.ActualRunId = Global.GlobalSaveData.Runs.First().Id;
+                }
+            }
+            catch { }
 
         }
 
@@ -68,7 +104,7 @@ namespace AutoHitManager
             ModHooks.AfterPlayerDeadHook -= EndRun;
             ModHooks.BeforeSceneLoadHook -= CheckScene;
             ModHooks.CharmUpdateHook -= CheckFuryEquipped;
-            ModHooks.SetPlayerIntHook -= CheckPlayerInts;
+            ModHooks.SetPlayerIntHook -= CheckPlayerHealth;
             LoadedInstance = null;
             GameObject.DestroyImmediate(Game);
         }
@@ -109,6 +145,7 @@ namespace AutoHitManager
         private void EndRun()
         {
             Global.GlobalSaveData.ActualRun.LastRun = Global.LocalSaveData.Run;
+            Global.GlobalSaveData.ActualRun.History.Add(Global.LocalSaveData.Run);
             Global.LocalSaveData.Run.Ended = true;
         }
 
@@ -134,7 +171,6 @@ namespace AutoHitManager
 
         private int ManageHit(int hazardType, int dmg)
         {
-            var p_health = PlayerData.instance.GetInt("health");
             if ((!Global.IntentionalHit || (Global.IntentionalHit && hazardType != 2)) && !PlayerData.instance.isInvincible)
             {
                 Global.PerformHit();
@@ -148,7 +184,7 @@ namespace AutoHitManager
             }
             return dmg;
         }
-        private int CheckPlayerInts(string name, int orig)
+        private int CheckPlayerHealth(string name, int orig)
         {
             if (name == "health")
             {
@@ -172,31 +208,6 @@ namespace AutoHitManager
         public void OnLoadGlobal(HitManagerGlobalSaveData s)
         {
             Global.GlobalSaveData = s;
-            if (s.Runs.Count == 0)
-            {
-
-                Global.GlobalSaveData.Runs.Add(new RunConfig
-                {
-                    Name = "Any %",
-                    Splits = new List<SplitConfig> {
-                        new SplitConfig("False Knight"),
-                        new SplitConfig("Hornet"),
-                        new SplitConfig("Mantis Claw"),
-                        new SplitConfig("Gruz Mother"),
-                        new SplitConfig("Crystal Heart"),
-                        new SplitConfig("Shade Soul"),
-                        new SplitConfig("Monomon"),
-                        new SplitConfig("Herrah"),
-                        new SplitConfig("Lurien"),
-                        new SplitConfig("Hollow Knight")
-                    }
-                });
-            }
-
-            if (Global.GlobalSaveData.ActualRun == null)
-            {
-                Global.GlobalSaveData.ActualRun = Global.GlobalSaveData.Runs.First();
-            }
         }
 
         public HitManagerGlobalSaveData OnSaveGlobal() => Global.GlobalSaveData;
@@ -205,8 +216,8 @@ namespace AutoHitManager
 
         public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
         {
-            this.screen = AutoHitMenu.BuildMenu(modListMenu, toggleDelegates);
-            return this.screen;
+            this.Screen = AutoHitMenu.BuildMenu(modListMenu, toggleDelegates);
+            return this.Screen;
         }
     }
 }

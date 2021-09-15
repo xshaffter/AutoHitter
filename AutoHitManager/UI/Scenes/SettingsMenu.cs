@@ -19,9 +19,10 @@ namespace AutoHitManager.UI.Scenes
         {
             var boolOptions = new string[] { "Yes", "No" };
             var MaxSplitOptions = new string[] { "5", "10", "15", "20", "25", "30" };
-            Action<MenuSelectable> cancelAction = _ => {
+            void cancelAction(MenuSelectable _)
+            {
                 UIManager.instance.UIGoToDynamicMenu(previousScreen);
-            };
+            }
             return new MenuBuilder(UIManager.instance.UICanvas.gameObject, "AutoHitSettings")
                 .CreateTitle("Config", MenuTitleStyle.vanillaStyle)
                 .CreateContentPane(RectTransformData.FromSizeAndPos(

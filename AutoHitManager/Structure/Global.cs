@@ -96,6 +96,10 @@ namespace AutoHitManager.Cat
 
         public static List<T> PaginateList<T>(List<T> list, int actualIndex, int pageSize)
         {
+            if (pageSize >= list.Count)
+            {
+                return list;
+            }
             int otherSplits = pageSize - 1;
             int countSideDown = (int)(otherSplits / 2);
             int countSideUp = (int)(otherSplits - countSideDown);
@@ -161,5 +165,6 @@ namespace AutoHitManager.Cat
 
         public static int RunDetail = 0;
         internal static string PracticeMode = "No";
+        internal static int HistoryId;
     }
 }
