@@ -67,7 +67,7 @@ namespace AutoHitManager.Managers
 
         public static void SetPB(Run run)
         {
-            Global.GlobalSaveData.ActualRun.PB = run;
+            Global.GlobalSaveData.ActualRun().PB = run;
             Global.UpdateRunDataFile();
         }
 

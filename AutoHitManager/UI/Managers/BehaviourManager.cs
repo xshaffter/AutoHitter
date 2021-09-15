@@ -104,11 +104,10 @@ namespace AutoHitManager.UI.Managers
             }
             else if (Input.GetKeyDown(KeyCode.Backspace))
             {
-                try
+                if (name.Length > 0)
                 {
                     name = name.Remove(name.Length - 1);
                 }
-                catch {}
             }
         }
 

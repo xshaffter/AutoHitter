@@ -31,19 +31,19 @@ namespace AutoHitManager.UI.Scenes
             menu = new MenuBuilder(UIManager.instance.UICanvas.gameObject, "RunList")
                 .CreateTitle("Runs", MenuTitleStyle.vanillaStyle)
                 .CreateContentPane(RectTransformData.FromSizeAndPos(
-                    new RelVector2(new Vector2(1920f, 903f)),
+                    new RelVector2(new Vector2(1920f, 603)),
                     new AnchoredPosition(
                         new Vector2(0.5f, 0.5f),
                         new Vector2(0.5f, 0.5f),
-                        new Vector2(0f, -60f)
+                        new Vector2(0f, 60f)
                     )
                 ))
                 .CreateControlPane(RectTransformData.FromSizeAndPos(
-                    new RelVector2(new Vector2(1920f, 259f)),
+                    new RelVector2(new Vector2(1920f, 559f)),
                     new AnchoredPosition(
                         new Vector2(0.5f, 0.5f),
                         new Vector2(0.5f, 0.5f),
-                        new Vector2(0f, -652f)
+                        new Vector2(0f, -602f)
                     )
                 ))
                 .SetDefaultNavGraph(new GridNavGraph(1))
@@ -148,8 +148,7 @@ namespace AutoHitManager.UI.Scenes
                                     UIManager.instance.UIGoToDynamicMenu(AvailableRunsMenu.BuildMenu(PreviousScreen));
                                 },
                                 Style = MenuButtonStyle.VanillaStyle
-                            },
-                            out var addButton
+                            }
                         ).AddMenuButton(
                             "BackButton",
                             new MenuButtonConfig
@@ -158,8 +157,7 @@ namespace AutoHitManager.UI.Scenes
                                 CancelAction = cancelAction,
                                 SubmitAction = cancelAction,
                                 Style = MenuButtonStyle.VanillaStyle
-                            },
-                            out var backButton
+                            }
                         );
                     }
                 )

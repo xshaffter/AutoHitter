@@ -1,5 +1,6 @@
 ﻿using AutoHitManager.Cat;
 using AutoHitManager.Managers;
+using AutoHitManager.Structure;
 using Modding;
 using Modding.Menu;
 using Modding.Menu.Config;
@@ -130,6 +131,18 @@ namespace AutoHitManager.UI.Scenes
                     c =>
                     {
                         c.AddMenuButton(
+                            "SetRun",
+                            new MenuButtonConfig
+                            {
+                                Label = "Set actual run",
+                                CancelAction = cancelAction,
+                                SubmitAction = _ =>
+                                {
+                                    Global.GlobalSaveData.ActualRunId = run.Id;
+                                },
+                                Style = MenuButtonStyle.VanillaStyle
+                            }
+                        ).AddMenuButton(
                             "ResetPB",
                             new MenuButtonConfig
                             {

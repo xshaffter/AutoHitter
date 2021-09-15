@@ -16,12 +16,9 @@ namespace AutoHitManager.Cat
         public int NextId = 1;
         public int NextRunId = 1;
         public int ActualRunId = 0;
-        public RunConfig ActualRun
+        public RunConfig ActualRun()
         {
-            get
-            {
-                return Runs.Find(run => run.Id == ActualRunId);
-            }
+            return Runs.Find(run => run.Id == ActualRunId);
         }
 
         public List<RunConfig> Runs = new();

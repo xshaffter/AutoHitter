@@ -87,7 +87,7 @@ namespace AutoHitManager
 
             try
             {
-                if (Global.GlobalSaveData.ActualRun == null)
+                if (Global.GlobalSaveData.ActualRun() == null)
                 {
                     Global.GlobalSaveData.ActualRunId = Global.GlobalSaveData.Runs.First().Id;
                 }
@@ -144,8 +144,7 @@ namespace AutoHitManager
 
         private void EndRun()
         {
-            Global.GlobalSaveData.ActualRun.LastRun = Global.LocalSaveData.Run;
-            Global.GlobalSaveData.ActualRun.History.Add(Global.LocalSaveData.Run);
+            Global.LocalSaveData.Run.RunConfig().History.Add(Global.LocalSaveData.Run);
             Global.LocalSaveData.Run.Ended = true;
         }
 
@@ -160,7 +159,7 @@ namespace AutoHitManager
             {
                 Global.LocalSaveData.Run = new()
                 {
-                    number = Global.GlobalSaveData.ActualRun.MaxRun++,
+                    number = Global.GlobalSaveData.ActualRun().MaxRun++,
                     Ended = false,
                     Splits = new()
                 };

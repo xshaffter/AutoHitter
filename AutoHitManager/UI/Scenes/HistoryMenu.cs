@@ -67,10 +67,10 @@ namespace AutoHitManager.UI.Scenes
                                 var rt = scroll.ContentObject.GetComponent<RectTransform>();
                                 rt.sizeDelta = new Vector2(0f, rt.sizeDelta.y + 105f);
                                 scroll.AddMenuButton(
-                                    split.Name,
+                                    split.Name(),
                                     new MenuButtonConfig
                                     {
-                                        Label = $"{split.Name} with {split.Hits} hits",
+                                        Label = $"{split.Name()} with {split.Hits} hits",
                                         CancelAction = cancelAction,
                                         SubmitAction = _ => {},
                                         Style = MenuButtonStyle.VanillaStyle

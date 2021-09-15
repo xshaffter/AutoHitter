@@ -57,11 +57,11 @@ namespace AutoHitManager.Cat
                 {
                     LocalSaveData.Run.Splits = new List<Split>();
                     int index = 0;
-                    if (Global.GlobalSaveData.ActualRun != null)
+                    if (Global.GlobalSaveData.ActualRun() != null)
                     {
-                        foreach (var split in Global.GlobalSaveData.ActualRun.Splits)
+                        foreach (var split in Global.GlobalSaveData.ActualRun().Splits)
                         {
-                            var PB_split = Global.GlobalSaveData.ActualRun?.PB?.Splits?.Find(s => s._index == index);
+                            var PB_split = Global.GlobalSaveData.ActualRun()?.PB?.Splits?.Find(s => s._index == index);
                             LocalSaveData.Run.Splits.Add(new Split
                             {
                                 Hits = 0,
@@ -125,7 +125,7 @@ namespace AutoHitManager.Cat
         {
             var data = PaginateList(LocalSaveData.Run.Splits, LocalSaveData.CurrentSplit, MaxVisibleSplits).Select(item => item.ToString()).ToList();
             int total_hits = LocalSaveData.Run.Hits();
-            int total_pb = GlobalSaveData.ActualRun?.PB?.Hits() ?? 0;
+            int total_pb = GlobalSaveData.ActualRun()?.PB?.Hits() ?? 0;
 
             string splits_data = $"[{string.Join(",", data)}]";
             string run_data = $"{{practice: {(PracticeMode == "Yes").ToString().ToLower()},split:{LocalSaveData.CurrentSplit}, split_count:{LocalSaveData.Run.Splits.Count()}, run: {LocalSaveData.Run.number}, fury: {IntentionalHit.ToString().ToLower()}}}";
