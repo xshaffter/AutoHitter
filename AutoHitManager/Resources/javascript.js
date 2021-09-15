@@ -69,8 +69,8 @@ function doUpdateData(total_info, splits, run_data) {
             let row = document.createElement("tr")
             if (split.split == run_data.split) {
                 row.classList.add("current-split");
-            } else if (split.split < run_data.split) {
-                if (split.Diff < 0) {
+            } else if (split.split <= run_data.split) {
+                if (split.Diff <= 0 && split.Hits > 0) {
                     row.classList.add("bad-split");
                 } else {
                     row.classList.add("good-split");
