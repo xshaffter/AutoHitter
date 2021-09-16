@@ -26,9 +26,14 @@ namespace AutoHitManager.Structure
             }
         }
 
+        public RunConfig Run()
+        {
+            return Global.GlobalSaveData.Runs.Find(run => run.Splits.Any(split => split.Id == this.splitID));
+        }
+
         public SplitConfig Config()
         {
-            return Global.GlobalSaveData.ActualRun().Splits.Find(config => config.Id == this.splitID);
+            return this.Run().Splits.Find(config => config.Id == this.splitID);
         }
 
         public string Name() 
@@ -37,12 +42,12 @@ namespace AutoHitManager.Structure
             {
                 return this.ForcedName;
             }
-            return this.Config().Name;
+            return this.Config()?.Name;
         }
         public Split PBSplit()
         {
-            if (Global.GlobalSaveData.ActualRun().PB == null) return null;
-            return Global.GlobalSaveData.ActualRun().PB?.Splits?.Find(split => split.splitID == this.splitID);
+            if (this.Run().PB == null) return null;
+            return this.Run().PB?.Splits?.Find(split => split.splitID == this.splitID);
         }
         public int Diff()
         {
@@ -62,7 +67,7 @@ namespace AutoHitManager.Structure
             {
                 try
                 {
-                    previous = Global.GlobalSaveData.ActualRun().PB.Splits.Where(split => split.GetIndex() < PBSplit().GetIndex()).Sum(split => split.Hits);
+                    previous = this.Run().PB.Splits.Where(split => split.GetIndex() < PBSplit().GetIndex()).Sum(split => split.Hits);
                 }
                 catch
                 {
