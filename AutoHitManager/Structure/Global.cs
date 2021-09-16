@@ -125,7 +125,7 @@ namespace AutoHitManager.Cat
         {
             var data = PaginateList(LocalSaveData.Run.Splits, LocalSaveData.CurrentSplit, MaxVisibleSplits).Select(item => item.ToString()).ToList();
             int total_hits = LocalSaveData.Run.Hits();
-            int total_pb = GlobalSaveData.ActualRun()?.PB?.Hits() ?? 0;
+            int total_pb = LocalSaveData.Run?.RunConfig()?.PB?.Hits() ?? GlobalSaveData.ActualRun()?.PB?.Hits() ?? 0;
 
             string splits_data = $"[{string.Join(",", data)}]";
             string run_data = $"{{practice: {(PracticeMode == "Yes").ToString().ToLower()},split:{LocalSaveData.CurrentSplit}, split_count:{LocalSaveData.Run.Splits.Count()}, run: {LocalSaveData.Run.number}, fury: {IntentionalHit.ToString().ToLower()}}}";
