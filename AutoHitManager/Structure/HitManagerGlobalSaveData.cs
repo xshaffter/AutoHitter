@@ -22,5 +22,7 @@ namespace AutoHitManager.Cat
         }
 
         public List<RunConfig> Runs = new();
+
+        public int FuryCount = 3;
     }
 }

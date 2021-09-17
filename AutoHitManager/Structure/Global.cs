@@ -24,16 +24,13 @@ namespace AutoHitManager.Cat
                 return GlobalSaveData.MaxVisibleSplits;
             }
         }
-        public static double FuryTime { get; internal set; }
+        internal static double FuryTime { get; set; }
         private static bool fury = false;
-        public static bool IsFuryEquipped;
-        public static HitManagerSaveData LocalSaveData { get; set; } = new();
-        public static HitManagerGlobalSaveData GlobalSaveData { get; set; } = new();
-        public static Timer FuryTimer;
-        public static bool IsProhibitedZone = false;
-        public static MenuScreen RunListMenu;
-        public static MenuScreen _ModConfigMenu;
-        public static MenuScreen _RunDetailMenu;
+        internal static bool IsFuryEquipped;
+        internal static HitManagerSaveData LocalSaveData { get; set; } = new();
+        internal static HitManagerGlobalSaveData GlobalSaveData { get; set; } = new();
+        internal static Timer FuryTimer;
+        internal static bool IsProhibitedZone = false;
 
         public static bool IntentionalHit
         {
@@ -47,31 +44,6 @@ namespace AutoHitManager.Cat
                 BindableFunctions.CountDown = 0;
                 BindableFunctions.CountUp = 0;
                 UpdateRunDataFile();
-            }
-        }
-        public static List<Split> Splits
-        {
-            get
-            {
-                if (LocalSaveData.Run.Splits == null || LocalSaveData.Run.Splits.Count <= 0)
-                {
-                    LocalSaveData.Run.Splits = new List<Split>();
-                    int index = 0;
-                    if (Global.GlobalSaveData.ActualRun() != null)
-                    {
-                        foreach (var split in Global.GlobalSaveData.ActualRun().Splits)
-                        {
-                            var PB_split = Global.GlobalSaveData.ActualRun()?.PB?.Splits?.Find(s => s._index == index);
-                            LocalSaveData.Run.Splits.Add(new Split
-                            {
-                                Hits = 0,
-                                splitID = split.Id,
-                                _index = index++
-                            });
-                        }
-                    }
-                }
-                return LocalSaveData.Run.Splits;
             }
         }
 
@@ -123,12 +95,33 @@ namespace AutoHitManager.Cat
 
         public static void UpdateRunDataFile()
         {
-            var data = PaginateList(LocalSaveData.Run.Splits, LocalSaveData.CurrentSplit, MaxVisibleSplits).Select(item => item.ToString()).ToList();
-            int total_hits = LocalSaveData.Run.Hits();
-            int total_pb = LocalSaveData.Run?.RunConfig()?.PB?.Hits() ?? GlobalSaveData.ActualRun()?.PB?.Hits() ?? 0;
-
+            List<string> data;
+            int total_hits;
+            int total_pb;
+            string run_data;
+            if (LocalSaveData.Run.Splits.Count > 0)
+            {
+                data = PaginateList(LocalSaveData.Run.SplitInfo(), LocalSaveData.CurrentSplit, MaxVisibleSplits).Select(item => item.ToString()).ToList();
+                total_hits = LocalSaveData.Run.Hits();
+                total_pb = LocalSaveData.Run?.RunConfig()?.PB?.Hits() ?? GlobalSaveData.ActualRun()?.PB?.Hits() ?? 0;
+                run_data = $"{{practice: {(PracticeMode == "Yes").ToString().ToLower()},split:{LocalSaveData.CurrentSplit}, split_count:{LocalSaveData.Run.SplitInfo().Count()}, run: {LocalSaveData.Run.number}, fury: {IntentionalHit.ToString().ToLower()}}}";
+            }
+            else
+            {
+                var index = 0;
+                var fake_splits = GlobalSaveData.ActualRun().Splits.Select(config => new Split
+                {
+                    Hits = 0,
+                    splitID = config.Id,
+                    _index = index++
+                }).ToList();
+                LocalSaveData.Run.Splits = fake_splits;
+                data = PaginateList(fake_splits, 0, MaxVisibleSplits).Select(item => item.ToString()).ToList();
+                total_hits = 0;
+                total_pb = GlobalSaveData.ActualRun()?.PB?.Hits() ?? 0;
+                run_data = $"{{practice: {(PracticeMode == "Yes").ToString().ToLower()},split:-1, split_count:{fake_splits.Count()}, run: {LocalSaveData.Run.number}, fury: {IntentionalHit.ToString().ToLower()}}}";
+            }
             string splits_data = $"[{string.Join(",", data)}]";
-            string run_data = $"{{practice: {(PracticeMode == "Yes").ToString().ToLower()},split:{LocalSaveData.CurrentSplit}, split_count:{LocalSaveData.Run.Splits.Count()}, run: {LocalSaveData.Run.number}, fury: {IntentionalHit.ToString().ToLower()}}}";
             string total_data = new Split
             {
                 ForcedPB = total_pb,
@@ -159,12 +152,13 @@ namespace AutoHitManager.Cat
         {
             get
             {
-                return Splits[LocalSaveData.CurrentSplit];
+                return LocalSaveData.Run.Splits[LocalSaveData.CurrentSplit];
             }
         }
 
         public static int RunDetail = 0;
         internal static string PracticeMode = "No";
         internal static int HistoryId;
+        internal static bool IsDreamerZone = false;
     }
 }

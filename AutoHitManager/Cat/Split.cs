@@ -14,16 +14,13 @@ namespace AutoHitManager.Structure
         public int Hits = 0;
         public int? ForcedPB = null;
         private int? previous = null;
-        public int? PB
+        public int? PB()
         {
-            get
+            if (ForcedPB != null)
             {
-                if (ForcedPB != null)
-                {
-                    return ForcedPB;
-                }
-                return PBSplit()?.Hits ?? 0;
+                return ForcedPB;
             }
+            return PBSplit()?.Hits ?? 0;
         }
 
         public RunConfig Run()
@@ -51,13 +48,13 @@ namespace AutoHitManager.Structure
         }
         public int Diff()
         {
-            return (PB ?? 0) - Hits;
+            return (PB() ?? 0) - Hits;
         }
         public int GetIndex()
         {
             if (_index == -2)
             {
-                _index = Global.Splits.IndexOf(this);
+                _index = Run().Splits.IndexOf(Config());
             }
             return _index;
         }
@@ -79,7 +76,7 @@ namespace AutoHitManager.Structure
 
         public override string ToString()
         {
-            return $"{{Name:\"{Name()}\", Hits:{Hits}, PB:\"{PB?.ToString() ?? "-"} ({GetPrevious()})\", Diff:{Diff()}, split: {_index}}}";
+            return $"{{Name:\"{Name()}\", Hits:{Hits}, PB:\"{PB()?.ToString() ?? "-"} ({GetPrevious()})\", Diff:{Diff()}, split: {_index}}}";
         }
     }
 }

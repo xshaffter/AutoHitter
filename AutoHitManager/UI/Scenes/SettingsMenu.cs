@@ -66,9 +66,33 @@ namespace AutoHitManager.UI.Scenes
                                 {
                                     int index = MaxSplitOptions.ToList().IndexOf(Global.GlobalSaveData.MaxVisibleSplits.ToString());
                                     self.optionList.SetOptionTo(index);
+                                    Global.UpdateRunDataFile();
                                 }
                             },
                             out var maxSplitOption
+                        ).AddHorizontalOption(
+                            "FuryCount",
+                            new HorizontalOptionConfig
+                            {
+                                Label = "Fury count signal",
+                                CancelAction = cancelAction,
+                                Options = new string[] { "1", "2", "3", "4", "5", },
+                                Description = new DescriptionInfo
+                                {
+                                    Style = DescriptionStyle.HorizOptionSingleLineVanillaStyle,
+                                    Text = "number of up, down to activate FOTF"
+                                },
+                                ApplySetting = (_, i) =>
+                                {
+                                    Global.GlobalSaveData.FuryCount = int.Parse(_.optionList.GetSelectedOptionText());
+                                },
+                                RefreshSetting = (self, _) =>
+                                {
+                                    int index = self.optionList.optionList.ToList().IndexOf(Global.GlobalSaveData.FuryCount.ToString());
+                                    self.optionList.SetOptionTo(index);
+                                }
+                            },
+                            out var furyCountOption
                         ).AddHorizontalOption(
                             "PracticeMode",
                             new HorizontalOptionConfig
@@ -89,6 +113,7 @@ namespace AutoHitManager.UI.Scenes
                                 {
                                     int index = boolOptions.ToList().IndexOf(Global.PracticeMode);
                                     self.optionList.SetOptionTo(index);
+                                    Global.UpdateRunDataFile();
                                 }
                             },
                             out var practiceMode
@@ -123,6 +148,7 @@ namespace AutoHitManager.UI.Scenes
                         navGraph.ChangeColumns(2);
                         maxSplitOption.GetComponent<MenuSetting>().RefreshValueFromGameSettings();
                         practiceMode.GetComponent<MenuSetting>().RefreshValueFromGameSettings();
+                        furyCountOption.GetComponent<MenuSetting>().RefreshValueFromGameSettings();
                     }
                 )
                 .AddControls(

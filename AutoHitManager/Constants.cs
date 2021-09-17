@@ -9,7 +9,21 @@ namespace AutoHitManager
     public class Constants
     {
         public static readonly string HTML = "<!DOCTYPE html><html><head><title>HitCounterData</title></head><body><script language='javascript'>let run_data = {0};let splits = {1};let total = {2};parent.DoUpdate(total, splits, run_data);</script></body></html>";
-        internal static List<string> ProhibitedZones = new()
+        internal static readonly List<string> DreamerZones = new()
+        {
+            "Dream_Nailcollection",
+            "Dream_Guardian_Hegemol",
+            "Dream_Guardian_Lurien",
+            "Dream_Guardian_Monomon",
+            "Dream_Backer_Shrine",
+            "Dream_Abyss",
+            "Dream_01_False_Knight",
+            "Dream_02_Mage_Lord",
+            "Dream_03_Infected_Knight",
+            "Dream_04_White_Defender",
+            "Dream_Room_Believer_Shrine"
+        };
+        internal static readonly List<string> ProhibitedZones = new()
         {
             "White_Palace"
         };
