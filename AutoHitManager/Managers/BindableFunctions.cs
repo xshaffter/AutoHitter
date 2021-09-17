@@ -94,7 +94,6 @@ namespace AutoHitManager.Managers
 
         private static void CheckDreamerZone(string name)
         {
-            Global.Log(name);
             if (Global.IsDreamerZone = Constants.DreamerZones.Any(zone => name.ToLower() == zone.ToLower() || name.ToLower().StartsWith(zone.ToLower())))
             {
                 Global.IntentionalHit = false;
