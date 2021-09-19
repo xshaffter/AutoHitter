@@ -10,11 +10,11 @@ using UnityEngine;
 
 namespace AutoHitManager.UI.Managers
 {
-    public class KeyboardManager : MonoBehaviour
+    public class KeyboardRunEdit : MonoBehaviour
     {
         private string Name = "";
         private static GameObject keylistener = null;
-        private static SplitConfig Split = null;
+        private static RunConfig Run = null;
         public static KeyCode[] ValidKeys = new KeyCode[]
         {
             KeyCode.A,
@@ -95,58 +95,33 @@ namespace AutoHitManager.UI.Managers
             }
             if (Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Return))
             {
-                Split.Name = Name;
+                Run.Name = Name;
                 Name = "";
                 GameObject.DestroyImmediate(keylistener);
                 keylistener = null;
-                UIManager.instance.UIGoToDynamicMenu(SplitManagerMenu.BuildMenu(SplitManagerMenu.PreviousScreen));
+                AvailableRunsMenu.buttonBehaviour = AvailableRunsMenu.VIEW;
+                UIManager.instance.UIGoToDynamicMenu(AvailableRunsMenu.BuildMenu(AvailableRunsMenu.PreviousScreen));
                 Global.UpdateRunDataFile();
             }
             else if (Input.GetKeyDown(KeyCode.Backspace))
             {
-                if (name.Length > 0)
+                try
                 {
                     name = name.Remove(name.Length - 1);
                 }
+                catch { }
             }
         }
 
-        public static void UsageButton(RunConfig run, SplitConfig split)
+        public static void UsageButton(RunConfig run)
         {
-            int index;
-            switch (SplitManagerMenu.buttonBehaviour)
+            if (keylistener == null)
             {
-                case SplitManagerMenu.RENAME:
-                    if (keylistener == null)
-                    {
-                        keylistener = new GameObject();
-                        keylistener.AddComponent<KeyboardManager>();
-                        DontDestroyOnLoad(keylistener);
-                        Split = split;
-                    }
-                    break;
-                case SplitManagerMenu.BEFORE:
-                    index = run.Splits.IndexOf(split);
-                    run.Splits.Insert(index, new SplitConfig("Dummy"));
-                    UIManager.instance.UIGoToDynamicMenu(SplitManagerMenu.BuildMenu(SplitManagerMenu.PreviousScreen));
-                    Global.UpdateRunDataFile();
-                    break;
-                case SplitManagerMenu.AFTER:
-                    index = run.Splits.IndexOf(split);
-                    run.Splits.Insert(index + 1, new SplitConfig("Dummy"));
-                    UIManager.instance.UIGoToDynamicMenu(SplitManagerMenu.BuildMenu(SplitManagerMenu.PreviousScreen));
-                    Global.UpdateRunDataFile();
-                    break;
-                case SplitManagerMenu.DELETE:
-                    if (run.Splits.Count > 1)
-                    {
-                        run.Splits.Remove(split);
-                        UIManager.instance.UIGoToDynamicMenu(SplitManagerMenu.BuildMenu(SplitManagerMenu.PreviousScreen));
-                        Global.UpdateRunDataFile();
-                    }
-                    break;
+                keylistener = new GameObject();
+                keylistener.AddComponent<KeyboardRunEdit>();
+                DontDestroyOnLoad(keylistener);
+                Run = run;
             }
-            SplitManagerMenu.buttonBehaviour = SplitManagerMenu.RENAME;
         }
 
     }

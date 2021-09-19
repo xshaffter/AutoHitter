@@ -1,4 +1,6 @@
 ﻿using AutoHitManager.Cat;
+using AutoHitManager.Managers;
+using AutoHitManager.Structure;
 using Modding;
 using Modding.Menu;
 using Modding.Menu.Config;
@@ -14,43 +16,50 @@ namespace AutoHitManager.UI.Scenes
 {
     public static class RunDetailMenu
     {
-        public static MenuScreen BuildMenu()
+        public static MenuScreen BuildMenu(MenuScreen previousScreen)
         {
             var run = Global.GlobalSaveData.Runs[Global.RunDetail];
-            Global.Log(run.Name);
-            Action<MenuSelectable> cancelAction = _ =>
-            {
-                UIManager.instance.UIGoToDynamicMenu(AutoHitMod.LoadedInstance.screen);
-            };
-            Action<MenuPreventDeselect> cancelAction2 = _ =>
-            {
-                UIManager.instance.UIGoToDynamicMenu(AutoHitMod.LoadedInstance.screen);
-            };
+            void cancelAction(MenuSelectable _)
+            { 
+                UIManager.instance.UIGoToDynamicMenu(previousScreen);
+            }
             MenuScreen menu = null;
             menu = new MenuBuilder(UIManager.instance.UICanvas.gameObject, "RunDetailMenu")
-                .CreateTitle(run.Name, MenuTitleStyle.vanillaStyle)
-                .CreateContentPane(RectTransformData.FromSizeAndPos(
-                    new RelVector2(new Vector2(1920f, 903f)),
-                    new AnchoredPosition(
-                        new Vector2(0.5f, 0.5f),
-                        new Vector2(0.5f, 0.5f),
-                        new Vector2(0f, -60f)
-                    )
-                ))
-                .CreateControlPane(RectTransformData.FromSizeAndPos(
-                    new RelVector2(new Vector2(1920f, 259f)),
-                    new AnchoredPosition(
-                        new Vector2(0.5f, 0.5f),
-                        new Vector2(0.5f, 0.5f),
-                        new Vector2(0f, -502f)
-                    )
-                ))
-                .SetDefaultNavGraph(new GridNavGraph(1))
-                .AddContent(
-                    RegularGridLayout.CreateVerticalLayout(105f),
-                    c =>
+            .CreateTitle(run.Name, MenuTitleStyle.vanillaStyle).CreateContentPane(RectTransformData.FromSizeAndPos(
+                new RelVector2(new Vector2(1920f, 603)),
+                new AnchoredPosition(
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0f, 60f)
+                )
+            )).CreateControlPane(RectTransformData.FromSizeAndPos(
+                new RelVector2(new Vector2(1920f, 559f)),
+                new AnchoredPosition(
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f),
+                    new Vector2(0f, -602f)
+                )
+            )).SetDefaultNavGraph(new GridNavGraph(1)).AddContent(
+                RegularGridLayout.CreateVerticalLayout(105f),
+                c =>
+                {
+                    c.AddScrollPaneContent(new ScrollbarConfig
                     {
-                        c.AddMenuButton(
+                        CancelAction = _ => { },
+                        Navigation = new Navigation { mode = Navigation.Mode.Explicit },
+                        Position = new AnchoredPosition
+                        {
+                            ChildAnchor = new Vector2(0f, 1f),
+                            ParentAnchor = new Vector2(1f, 1f),
+                            Offset = new Vector2(-310f, 0f)
+                        },
+                        SelectionPadding = _ => (-60, 0)
+                    },
+                    new RelLength(0f),
+                    RegularGridLayout.CreateVerticalLayout(80f),
+                    scroll =>
+                    {
+                        scroll.AddMenuButton(
                             "Splits",
                             new MenuButtonConfig
                             {
@@ -63,57 +72,87 @@ namespace AutoHitManager.UI.Scenes
                                 Style = MenuButtonStyle.VanillaStyle,
                                 Proceed = true
                             }
-                        )
-                        .AddScrollPaneContent(new ScrollbarConfig
-                        {
-                            CancelAction = cancelAction2,
-                            Navigation = new Navigation { mode = Navigation.Mode.Explicit },
-                            Position = new AnchoredPosition
+                        ).AddTextPanel(
+                            "History",
+                            new RelVector2(new Vector2(315f, MenuButtonStyle.VanillaStyle.TextSize)),
+                            new TextPanelConfig
                             {
-                                ChildAnchor = new Vector2(0f, 1f),
-                                ParentAnchor = new Vector2(1f, 1f),
-                                Offset = new Vector2(-310f, 0f)
-                            },
-                            SelectionPadding = _ => (-60, 0)
-                        },
-                        new RelLength(0f),
-                        RegularGridLayout.CreateVerticalLayout(105f),
-                        scroll =>
+                                Text = $"=History=",
+                                Font = TextPanelConfig.TextFont.TrajanRegular,
+                                Size = MenuButtonStyle.VanillaStyle.TextSize,
+                                Anchor = TextAnchor.MiddleCenter
+                            }
+                        );
+                        if (run.History != null && run.History.Count > 0)
                         {
                             foreach (var run in run.History)
                             {
-                                c.AddMenuButton(
+                                var rt = scroll.ContentObject.GetComponent<RectTransform>();
+                                rt.sizeDelta = new Vector2(0f, rt.sizeDelta.y + 80f);
+                                scroll.AddMenuButton(
                                     $"Run #{run.number}",
                                     new MenuButtonConfig
                                     {
-                                        Label = $"Run #{run.number}",
+                                        Label = $"Run #{run.number} with PB { run.Hits() }",
                                         CancelAction = cancelAction,
-                                        SubmitAction = cancelAction,
+                                        SubmitAction = _ =>
+                                        {
+                                            Global.HistoryId = run.number;
+                                            UIManager.instance.UIGoToDynamicMenu(HistoryMenu.BuildMenu(menu));
+                                        },
                                         Style = MenuButtonStyle.VanillaStyle,
                                         Proceed = true
                                     }
                                 );
                             }
-                        });
-
-                        // should be guaranteed from `MenuBuilder.AddContent`
-                        if (c.Layout is RegularGridLayout layout)
-                        {
-                            var l = layout.ItemAdvance;
-                            l.x = new RelLength(750f);
-                            layout.ChangeColumns(2, 0.5f, l, 0.5f);
                         }
-                        GridNavGraph navGraph = c.NavGraph as GridNavGraph;
-                        navGraph.ChangeColumns(2);
-                    }
-                )
-                .AddControls(
-                    new SingleContentLayout(new AnchoredPosition(
-                        new Vector2(0.5f, 0.5f),
-                        new Vector2(0.5f, 0.5f),
-                        new Vector2(0f, -64f)
-                    )),
-                    c => c.AddMenuButton(
+                        else
+                        {
+                            scroll.AddTextPanel(
+                                "No history",
+                                new RelVector2(new Vector2(315f, MenuButtonStyle.VanillaStyle.TextSize)),
+                                new TextPanelConfig
+                                {
+                                    Text = $"There is no history available",
+                                    Font = TextPanelConfig.TextFont.TrajanRegular,
+                                    Size = MenuButtonStyle.VanillaStyle.TextSize,
+                                    Anchor = TextAnchor.MiddleCenter
+                                }
+                            );
+                        }
+                    },
+                    out var content,
+                    out var scroll);
+                }
+            ).AddControls(
+                RegularGridLayout.CreateVerticalLayout(105f),
+                c =>
+                {
+                    c.AddMenuButton(
+                        "SetRun",
+                        new MenuButtonConfig
+                        {
+                            Label = "Set actual run",
+                            CancelAction = cancelAction,
+                            SubmitAction = _ =>
+                            {
+                                Global.GlobalSaveData.ActualRunId = run.Id;
+                            },
+                            Style = MenuButtonStyle.VanillaStyle
+                        }
+                    ).AddMenuButton(
+                        "ResetPB",
+                        new MenuButtonConfig
+                        {
+                            Label = "Reset PB",
+                            CancelAction = cancelAction,
+                            SubmitAction = _ =>
+                            {
+                                run.PB = null;
+                            },
+                            Style = MenuButtonStyle.VanillaStyle
+                        }
+                    ).AddMenuButton(
                         "BackButton",
                         new MenuButtonConfig
                         {
@@ -122,11 +161,10 @@ namespace AutoHitManager.UI.Scenes
                             SubmitAction = cancelAction,
                             Style = MenuButtonStyle.VanillaStyle,
                             Proceed = true
-                        },
-                        out var backButton
-                    )
-                )
-                .Build();
+                        }
+                    );
+                }
+            ).Build();
             return menu;
         }
     }

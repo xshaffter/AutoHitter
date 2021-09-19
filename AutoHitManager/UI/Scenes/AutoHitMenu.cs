@@ -17,15 +17,13 @@ namespace AutoHitManager.UI.Scenes
         public static MenuScreen BuildMenu(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
         {
             var dels = toggleDelegates.Value;
-            Action<MenuSelectable> cancelAction = _ => {
+            void cancelAction(MenuSelectable _)
+            {
                 dels.ApplyChange();
                 UIManager.instance.UIGoToDynamicMenu(modListMenu);
-            };
-            Action<MenuPreventDeselect> cancelAction2 = _ => {
-                dels.ApplyChange();
-                UIManager.instance.UIGoToDynamicMenu(modListMenu);
-            };
-            return new MenuBuilder(UIManager.instance.UICanvas.gameObject, "AutoHit")
+            }
+            MenuScreen menu = null;
+            menu = new MenuBuilder(UIManager.instance.UICanvas.gameObject, "AutoHit")
                 .CreateTitle("AutoHit", MenuTitleStyle.vanillaStyle)
                 .CreateContentPane(RectTransformData.FromSizeAndPos(
                     new RelVector2(new Vector2(1920f, 903f)),
@@ -59,18 +57,6 @@ namespace AutoHitManager.UI.Scenes
                             },
                             out var toggleModOption
                         ).AddMenuButton(
-                            "Reset PB",
-                            new MenuButtonConfig
-                            {
-                                Label = "Reset PB",
-                                SubmitAction = _ =>
-                                {
-                                    Global.GlobalSaveData.ActualRun.PB = null;
-                                },
-                                CancelAction = cancelAction,
-                                Style = MenuButtonStyle.VanillaStyle
-                            }
-                        ).AddMenuButton(
                             "Runs",
                             new MenuButtonConfig
                             {
@@ -78,10 +64,11 @@ namespace AutoHitManager.UI.Scenes
                                 CancelAction = cancelAction,
                                 SubmitAction = _ =>
                                 {
-                                    dels.ApplyChange();
-                                    UIManager.instance.UIGoToDynamicMenu(Global.RunListMenu);
+                                    var self = AvailableRunsMenu.BuildMenu(menu);
+                                    UIManager.instance.UIGoToDynamicMenu(self);
                                 },
-                                Style = MenuButtonStyle.VanillaStyle
+                                Style = MenuButtonStyle.VanillaStyle,
+                                Proceed = true
                             }
                         ).AddMenuButton(
                             "Config",
@@ -90,11 +77,12 @@ namespace AutoHitManager.UI.Scenes
                                 Label = "Config",
                                 SubmitAction = _ =>
                                 {
-                                    dels.ApplyChange();
-                                    UIManager.instance.UIGoToDynamicMenu(Global._ModConfigMenu);
+                                    var self = SettingsMenu.BuildMenu(menu);
+                                    UIManager.instance.UIGoToDynamicMenu(self);
                                 },
                                 CancelAction = cancelAction,
-                                Style = MenuButtonStyle.VanillaStyle
+                                Style = MenuButtonStyle.VanillaStyle,
+                                Proceed = true
                             }
                         );
                         // should be guaranteed from `MenuBuilder.AddContent`
@@ -125,6 +113,7 @@ namespace AutoHitManager.UI.Scenes
                     )
                 )
                 .Build();
+            return menu;
         }
     }
 }

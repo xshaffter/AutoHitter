@@ -3,7 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31624.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoHitManager", "AutoHitManager\AutoHitManager.csproj", "{C141B06D-D101-48C5-8505-A428A8A0E841}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoHitManager", "AutoHitManager\AutoHitManager.csproj", "{C141B06D-D101-48C5-8505-A428A8A0E841}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B05C5A41-00C1-4803-8DC4-2D68FC15B6EB} = {B05C5A41-00C1-4803-8DC4-2D68FC15B6EB}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MenuApiPlusPlus", "MenuApiPlusPlus\MenuApiPlusPlus.csproj", "{B05C5A41-00C1-4803-8DC4-2D68FC15B6EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +20,10 @@ Global
 		{C141B06D-D101-48C5-8505-A428A8A0E841}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C141B06D-D101-48C5-8505-A428A8A0E841}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C141B06D-D101-48C5-8505-A428A8A0E841}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B05C5A41-00C1-4803-8DC4-2D68FC15B6EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B05C5A41-00C1-4803-8DC4-2D68FC15B6EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B05C5A41-00C1-4803-8DC4-2D68FC15B6EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B05C5A41-00C1-4803-8DC4-2D68FC15B6EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

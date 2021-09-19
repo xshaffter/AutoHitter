@@ -1,4 +1,5 @@
 ﻿using AutoHitManager.Cat;
+using System.Linq;
 using UnityEngine;
 
 namespace AutoHitManager.Managers
@@ -8,6 +9,14 @@ namespace AutoHitManager.Managers
         
         public void Update()
         {
+            if (HeroController.instance?.gameObject != null)
+            {
+                if(!HeroController.instance.gameObject.GetComponents<CollisionManager>().Any())
+                {
+                    HeroController.instance.gameObject.AddComponent<CollisionManager>();
+                }
+            }
+
             if (Global.GlobalSaveData.binds.nextSplit.WasPressed)
             {
                 BindableFunctions.NextSplit();
@@ -23,10 +32,6 @@ namespace AutoHitManager.Managers
             else if (InputHandler.Instance.inputActions.rs_down.WasPressed)
             {
                 BindableFunctions.FuryStep(BindableFunctions.DOWN);
-            }
-            else if (Global.GlobalSaveData.binds.SetPB.WasPressed)
-            {
-                BindableFunctions.SetPB();
             }
         }
     }

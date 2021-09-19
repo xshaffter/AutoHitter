@@ -11,60 +11,50 @@ namespace AutoHitManager.Structure
         public string ForcedName = null;
         public int _index = -2;
         public int splitID = 0;
-        public int Hits;
+        public int Hits = 0;
         public int? ForcedPB = null;
         private int? previous = null;
-        public int? PB
+        public int? PB()
         {
-            get
+            if (ForcedPB != null)
             {
-                if (ForcedPB != null)
-                {
-                    return ForcedPB;
-                }
-                return PBSplit?.Hits ?? 0;
+                return ForcedPB;
             }
+            return PBSplit()?.Hits ?? 0;
         }
 
-        public SplitConfig Config
+        public RunConfig Run()
         {
-            get
-            {
-                return Global.GlobalSaveData.ActualRun.Splits.Find(config => config.Id == this.splitID);
-            }
+            return Global.GlobalSaveData.Runs.Find(run => run.Splits.Any(split => split.Id == this.splitID));
         }
 
-        public string Name 
+        public SplitConfig Config()
         {
-            get
-            {
-                if (ForcedName != null)
-                {
-                    return this.ForcedName;
-                }
-                return this.Config.Name;
-            }
+            return this.Run().Splits.Find(config => config.Id == this.splitID);
         }
-        public Split PBSplit
+
+        public string Name() 
         {
-            get
+            if (ForcedName != null)
             {
-                if (Global.GlobalSaveData.ActualRun.PB == null) return null;
-                return Global.GlobalSaveData.ActualRun.PB?.Splits?.Find(split => split.splitID == this.splitID);
+                return this.ForcedName;
             }
+            return this.Config()?.Name;
         }
-        public int Diff 
+        public Split PBSplit()
         {
-            get
-            {
-                return (PB ?? 0) - Hits;
-            }
+            if (this.Run().PB == null) return null;
+            return this.Run().PB?.Splits?.Find(split => split.splitID == this.splitID);
+        }
+        public int Diff()
+        {
+            return (PB() ?? 0) - Hits;
         }
         public int GetIndex()
         {
             if (_index == -2)
             {
-                _index = Global.Splits.IndexOf(this);
+                _index = Run().Splits.IndexOf(Config());
             }
             return _index;
         }
@@ -74,7 +64,7 @@ namespace AutoHitManager.Structure
             {
                 try
                 {
-                    previous = Global.GlobalSaveData.ActualRun.PB.Splits.Where(split => split.GetIndex() < PBSplit.GetIndex()).Sum(split => split.Hits);
+                    previous = this.Run().PB.Splits.Where(split => split.GetIndex() < PBSplit().GetIndex()).Sum(split => split.Hits);
                 }
                 catch
                 {
@@ -86,7 +76,7 @@ namespace AutoHitManager.Structure
 
         public override string ToString()
         {
-            return $"{{Name:\"{Name}\", Hits:{Hits}, PB:\"{PB?.ToString() ?? "-"} ({GetPrevious()})\", Diff:{Diff}, split: {_index}}}";
+            return $"{{Name:\"{Name()}\", Hits:{Hits}, PB:\"{PB()?.ToString() ?? "-"} ({GetPrevious()})\", Diff:{Diff()}, split: {_index}}}";
         }
     }
 }

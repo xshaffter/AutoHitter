@@ -29,11 +29,11 @@ th {
 }
 
 .good-split, .good-split * {
-    color: lime;
+    color: lime !important;
 }
 
 .bad-split, .bad-split * {
-    color: red;
+    color: red !important;
 }
 
 .total * {

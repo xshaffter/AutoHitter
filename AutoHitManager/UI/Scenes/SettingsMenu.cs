@@ -15,15 +15,14 @@ namespace AutoHitManager.UI.Scenes
 {
     public static class SettingsMenu
     {
-        public static MenuScreen BuildMenu(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
+        public static MenuScreen BuildMenu(MenuScreen previousScreen)
         {
             var boolOptions = new string[] { "Yes", "No" };
             var MaxSplitOptions = new string[] { "5", "10", "15", "20", "25", "30" };
-            var dels = toggleDelegates.Value;
-            Action<MenuSelectable> cancelAction = _ => {
-                dels.ApplyChange();
-                UIManager.instance.UIGoToDynamicMenu(AutoHitMod.LoadedInstance.screen);
-            };
+            void cancelAction(MenuSelectable _)
+            {
+                UIManager.instance.UIGoToDynamicMenu(previousScreen);
+            }
             return new MenuBuilder(UIManager.instance.UICanvas.gameObject, "AutoHitSettings")
                 .CreateTitle("Config", MenuTitleStyle.vanillaStyle)
                 .CreateContentPane(RectTransformData.FromSizeAndPos(
@@ -67,9 +66,33 @@ namespace AutoHitManager.UI.Scenes
                                 {
                                     int index = MaxSplitOptions.ToList().IndexOf(Global.GlobalSaveData.MaxVisibleSplits.ToString());
                                     self.optionList.SetOptionTo(index);
+                                    Global.UpdateRunDataFile();
                                 }
                             },
                             out var maxSplitOption
+                        ).AddHorizontalOption(
+                            "FuryCount",
+                            new HorizontalOptionConfig
+                            {
+                                Label = "Fury count signal",
+                                CancelAction = cancelAction,
+                                Options = new string[] { "1", "2", "3", "4", "5", },
+                                Description = new DescriptionInfo
+                                {
+                                    Style = DescriptionStyle.HorizOptionSingleLineVanillaStyle,
+                                    Text = "number of up, down to activate FOTF"
+                                },
+                                ApplySetting = (_, i) =>
+                                {
+                                    Global.GlobalSaveData.FuryCount = int.Parse(_.optionList.GetSelectedOptionText());
+                                },
+                                RefreshSetting = (self, _) =>
+                                {
+                                    int index = self.optionList.optionList.ToList().IndexOf(Global.GlobalSaveData.FuryCount.ToString());
+                                    self.optionList.SetOptionTo(index);
+                                }
+                            },
+                            out var furyCountOption
                         ).AddHorizontalOption(
                             "PracticeMode",
                             new HorizontalOptionConfig
@@ -90,6 +113,7 @@ namespace AutoHitManager.UI.Scenes
                                 {
                                     int index = boolOptions.ToList().IndexOf(Global.PracticeMode);
                                     self.optionList.SetOptionTo(index);
+                                    Global.UpdateRunDataFile();
                                 }
                             },
                             out var practiceMode
@@ -124,6 +148,7 @@ namespace AutoHitManager.UI.Scenes
                         navGraph.ChangeColumns(2);
                         maxSplitOption.GetComponent<MenuSetting>().RefreshValueFromGameSettings();
                         practiceMode.GetComponent<MenuSetting>().RefreshValueFromGameSettings();
+                        furyCountOption.GetComponent<MenuSetting>().RefreshValueFromGameSettings();
                     }
                 )
                 .AddControls(

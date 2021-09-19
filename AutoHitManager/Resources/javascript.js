@@ -69,10 +69,11 @@ function doUpdateData(total_info, splits, run_data) {
             let row = document.createElement("tr")
             if (split.split == run_data.split) {
                 row.classList.add("current-split");
-            } else if (split.split < run_data.split) {
-                if (split.Diff < 0) {
+            }
+            if (split.split <= run_data.split) {
+                if (split.Diff <= 0 && split.Hits > 0) {
                     row.classList.add("bad-split");
-                } else {
+                } else if (split.split < run_data.split){
                     row.classList.add("good-split");
                 }
             }
@@ -84,7 +85,11 @@ function doUpdateData(total_info, splits, run_data) {
 
             name.innerHTML = split.Name;
             now.innerHTML = split.Hits;
-            diff.innerHTML = split.Diff > 0 ? `+${split.Diff}` : split.Diff;
+            if (split.split <= run_data.split) {
+                diff.innerHTML = split.Diff > 0 ? `+${split.Diff}` : split.Diff;
+            } else {
+                diff.innerHTML = '-';
+            }
             pb.innerHTML = split.PB;
 
             row.appendChild(name);
