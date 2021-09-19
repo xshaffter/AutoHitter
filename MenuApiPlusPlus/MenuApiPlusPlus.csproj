@@ -1,37 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<TargetFramework>net472</TargetFramework>
-		<AssemblyTitle>AutoHitManager</AssemblyTitle>
-		<AssemblyVersion>1.0.0.0</AssemblyVersion>
-		<DebugType>portable</DebugType>
-		<Copyright>Copyright © 2021</Copyright>
-		<OutputPath>bin\$(Configuration)\</OutputPath>
-		<LangVersion>latest</LangVersion>
-		<HollowKnightRefs>C:\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed</HollowKnightRefs>
-	</PropertyGroup>
-	<Target Name="CopyMod" AfterTargets="PostBuildEvent">
-		<RemoveDir Directories="$(ExportDir)/$(TargetName)/" />
-		<MakeDir Directories="$(ExportDir)/$(TargetName)/" />
-		<MakeDir Directories="$(ExportDir)/$(TargetName)/zip/" />
-		<MakeDir Condition="!Exists('$(HollowKnightRefs)/Mods/$(TargetName)/')" Directories="$(HollowKnightRefs)/Mods/$(TargetName)/" />
-		<Copy SourceFiles="$(TargetPath);$(TargetDir)/$(TargetName).pdb" DestinationFolder="$(HollowKnightRefs)/Mods/$(TargetName)/" />
-		<Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ExportDir)/$(TargetName)/" />
-		<Copy SourceFiles="ReadMe.md;$(TargetPath);$(TargetDir)/$(TargetName).pdb" DestinationFolder="$(ExportDir)/$(TargetName)/zip/" />
-		<ZipDirectory SourceDirectory="$(ExportDir)/$(TargetName)/zip/" DestinationFile="$(ExportDir)/$(TargetName)/$(TargetName).zip" />
-		<RemoveDir Directories="$(ExportDir)/$(TargetName)/zip/" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-		<GetFileHash Files="$(ExportDir)/$(TargetName)/$(TargetName).zip" Algorithm="SHA256">
-			<Output TaskParameter="Items" ItemName="FilesWithHashes" />
-		</GetFileHash>
-		<WriteLinesToFile File="$(ExportDir)/$(TargetName)/SHA.txt" Lines="@(FilesWithHashes->'%(FileHash)')" Overwrite="true" Encoding="UTF-8" />
+  <PropertyGroup>
+	  <TargetFramework>net472</TargetFramework>
+	  <AssemblyTitle>MenuApiPlusPLus</AssemblyTitle>
+	  <AssemblyVersion>1.0.0.0</AssemblyVersion>
+	  <DebugType>portable</DebugType>
+	  <Copyright>Copyright © 2021</Copyright>
+	  <OutputPath>bin\$(Configuration)\</OutputPath>
+	  <HollowKnightRefs>C:\Program Files (x86)\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed</HollowKnightRefs>
+  </PropertyGroup>
+	<Target Name="CopyMod" AfterTargets="PostBuildEvent">
+		<Copy SourceFiles="$(TargetPath);$(TargetDir)/$(TargetName).dll" DestinationFolder="$(HollowKnightRefs)/Mods/AutoHitManager/" />
+		<Copy SourceFiles="$(TargetPath);$(TargetDir)/$(TargetName).dll" DestinationFolder="$(HollowKnightRefs)/" />
 	</Target>
-	<ItemGroup>
-	  <EmbeddedResource Include="Resources\Design.html" />
-	  <EmbeddedResource Include="Resources\fotf.png" />
-	  <EmbeddedResource Include="Resources\javascript.js" />
-	  <EmbeddedResource Include="Resources\styles.css" />
-	</ItemGroup>
-	<ItemGroup>
+  <ItemGroup>
+		<Reference Include="mscorlib" />
 		<Reference Include="Assembly-CSharp">
 			<HintPath>$(HollowKnightRefs)/Assembly-CSharp.dll</HintPath>
 		</Reference>
@@ -40,9 +23,6 @@
 		</Reference>
 		<Reference Include="GalaxyCSharp">
 			<HintPath>$(HollowKnightRefs)/GalaxyCSharp.dll</HintPath>
-		</Reference>
-		<Reference Include="MenuApiPlusPlus">
-		  <HintPath>$(HollowKnightRefs)/MenuApiPlusPlus.dll</HintPath>
 		</Reference>
 		<Reference Include="MMHOOK_Assembly-CSharp">
 			<HintPath>$(HollowKnightRefs)/MMHOOK_Assembly-CSharp.dll</HintPath>
@@ -62,7 +42,6 @@
 		<Reference Include="MonoMod.Utils">
 			<HintPath>$(HollowKnightRefs)/MonoMod.Utils.dll</HintPath>
 		</Reference>
-		<Reference Include="mscorlib" />
 		<Reference Include="netstandard">
 			<HintPath>$(HollowKnightRefs)/netstandard.dll</HintPath>
 		</Reference>
@@ -300,9 +279,5 @@
 		<Reference Include="UnityEngine.XRModule">
 			<HintPath>$(HollowKnightRefs)/UnityEngine.XRModule.dll</HintPath>
 		</Reference>
-	</ItemGroup>
-	<ItemGroup>
-		<None Include=".gitignore" />
-		<None Include="ReadMe.md" />
 	</ItemGroup>
 </Project>

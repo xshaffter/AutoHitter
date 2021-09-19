@@ -1,5 +1,7 @@
 ﻿using AutoHitManager.Cat;
 using AutoHitManager.UI.Managers;
+using MenuApiPlusPlus.Cat;
+using MenuApiPlusPlus.Components;
 using Modding;
 using Modding.Menu;
 using Modding.Menu.Config;
@@ -53,7 +55,7 @@ namespace AutoHitManager.UI.Scenes
                         c.AddScrollPaneContent(new ScrollbarConfig
                         {
                             CancelAction = _ => { },
-                            Navigation = new Navigation { mode = Navigation.Mode.Explicit },
+                            Navigation = new Navigation { mode = Navigation.Mode.Vertical },
                             Position = new AnchoredPosition
                             {
                                 ChildAnchor = new Vector2(0f, 1f),
@@ -63,43 +65,96 @@ namespace AutoHitManager.UI.Scenes
                             SelectionPadding = _ => (-60, 0)
                         },
                         new RelLength(0f),
-                        RegularGridLayout.CreateVerticalLayout(105f),
+                        new RegularGridLayout(new AnchoredPosition
+                        {
+                            ChildAnchor = new Vector2(0.5f, 1f),
+                            ParentAnchor = new Vector2(0.5f, 1f),
+                            Offset = new Vector2(-200, 0)
+                        }, new RelVector2(new Vector2(-200f, -105)), 1),
                         scroll =>
                         {
                             if (Global.GlobalSaveData.Runs.Count > 0)
                             {
+                                var inputs = new List<TextInputConfig>();
                                 foreach (var run in Global.GlobalSaveData.Runs)
                                 {
                                     var rt = scroll.ContentObject.GetComponent<RectTransform>();
                                     rt.sizeDelta = new Vector2(0f, rt.sizeDelta.y + 105f);
-                                    scroll.AddMenuButton
-                                    (
-                                        run.Name,
-                                        new MenuButtonConfig
+                                    var config = new TextInputConfig
+                                    {
+                                        Text = $"View {run.Name} run",
+                                        submitAction = _ =>
                                         {
-                                            Label = $"View {run.Name} run",
-                                            SubmitAction = _ =>
-                                            {
-                                                if (buttonBehaviour == VIEW)
-                                                {
-                                                    Global.RunDetail = Global.GlobalSaveData.Runs.IndexOf(run);
-                                                    UIManager.instance.UIGoToDynamicMenu(RunDetailMenu.BuildMenu(menu));
-                                                }
-                                                else
-                                                {
-                                                    KeyboardRunEdit.UsageButton(run);
-                                                }
-                                            },
-                                            CancelAction = cancelAction,
-                                            Style = MenuButtonStyle.VanillaStyle
+                                            Global.RunDetail = Global.GlobalSaveData.Runs.IndexOf(run);
+                                            UIManager.instance.UIGoToDynamicMenu(RunDetailMenu.BuildMenu(menu));
+                                        },
+                                        PostEnterAction = config =>
+                                        {
+                                            run.Name = config.Text;
+                                            config.Text = $"View {run.Name} run";
                                         }
+                                    };
+                                    inputs.Add(config);
+                                    scroll.AddTextInput(
+                                        run.Name,
+                                        config
                                     );
                                 }
+                                scroll.AddCustomPaneContent(
+                                    new RelLength(0f),
+                                    new RegularGridLayout(new AnchoredPosition
+                                    {
+                                        ChildAnchor = new Vector2(0f, 1f),
+                                        ParentAnchor = new Vector2(0f, 1f),
+                                        Offset = new Vector2(300f, 0)
+                                    }, new RelVector2(new Vector2(175f, -105)), 2),
+                                    pane =>
+                                    {
+                                        foreach (var run in Global.GlobalSaveData.Runs)
+                                        {
+                                            var config = inputs.Find(cfg => cfg.Text == $"View {run.Name} run");
+                                            int index = Global.GlobalSaveData.Runs.IndexOf(run);
+                                            var rt = scroll.ContentObject.GetComponent<RectTransform>();
+                                            rt.sizeDelta = new Vector2(0f, rt.sizeDelta.y + 70f);
+                                            pane.AddMenuButton(
+                                                "Edit",
+                                                new MenuButtonConfig
+                                                {
+                                                    Label = "Edit",
+                                                    CancelAction = cancelAction,
+                                                    SubmitAction = _ =>
+                                                    {
+                                                        if (!config.IsFocused)
+                                                        {
+                                                            scroll.ResetFocus();
+                                                            config.Focus();
+                                                        }
+                                                    },
+                                                    Style = MenuButtonStyle.VanillaStyle,
+                                                }
+                                            ).AddMenuButton(
+                                                $"{run.Name}_delete",
+                                                new MenuButtonConfig
+                                                {
+                                                    Label = "Delete",
+                                                    CancelAction = cancelAction,
+                                                    Style = MenuButtonStyle.VanillaStyle,
+                                                    SubmitAction = btn =>
+                                                    {
+                                                        Global.GlobalSaveData.Runs.Remove(run);
+                                                        UIManager.instance.UIGoToDynamicMenu(AvailableRunsMenu.BuildMenu(previousScreen));
+                                                    },
+                                                    Proceed = true
+                                                }
+                                            );
+                                        }
+                                    }
+                                );
                             }
                             else
                             {
                                 var rt = scroll.ContentObject.GetComponent<RectTransform>();
-                                rt.sizeDelta = new Vector2(0f, rt.sizeDelta.y + 105f);
+                                rt.sizeDelta = new Vector2(0f, rt.sizeDelta.y + 80f);
                                 scroll.AddTextPanel
                                 (
                                     "No Runs",
@@ -121,18 +176,6 @@ namespace AutoHitManager.UI.Scenes
                     c =>
                     {
                         c.AddMenuButton(
-                            "Edit",
-                            new MenuButtonConfig
-                            {
-                                Label = "Edit",
-                                CancelAction = cancelAction,
-                                SubmitAction = _ =>
-                                {
-                                    buttonBehaviour = EDIT;
-                                },
-                                Style = MenuButtonStyle.VanillaStyle,
-                            }
-                        ).AddMenuButton(
                             "AddButton",
                             new MenuButtonConfig
                             {

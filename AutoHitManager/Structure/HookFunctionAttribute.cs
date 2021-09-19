@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AutoHitManager.Structure
 {
-    internal class BindedFunctionAttribute : Attribute
+    internal class HookFunctionAttribute : Attribute
     {
         public string Hook { get; set; }
         public Delegate Action { get; set; }

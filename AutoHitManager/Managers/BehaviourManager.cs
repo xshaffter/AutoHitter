@@ -9,9 +9,12 @@ namespace AutoHitManager.Managers
         
         public void Update()
         {
-            if (HeroController.instance?.gameObject != null && !HeroController.instance.gameObject.GetComponents<CollisionManager>().Any())
+            if (HeroController.instance?.gameObject != null)
             {
-                HeroController.instance.gameObject.AddComponent<CollisionManager>();
+                if(!HeroController.instance.gameObject.GetComponents<CollisionManager>().Any())
+                {
+                    HeroController.instance.gameObject.AddComponent<CollisionManager>();
+                }
             }
 
             if (Global.GlobalSaveData.binds.nextSplit.WasPressed)

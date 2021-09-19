@@ -31,14 +31,19 @@ namespace AutoHitManager.Managers
             if (type == UP && CountUp == CountDown && isFuryAvailable)
             {
                 CountUp++;
+                Global.FuryGestureTimer.Stop();
+                Global.FuryGestureTimer.Start();
             }
             else if (type == DOWN && CountUp > CountDown && isFuryAvailable)
             {
                 CountDown++;
+                Global.FuryGestureTimer.Stop();
+                Global.FuryGestureTimer.Start();
             }
 
             if (CountDown == Global.GlobalSaveData.FuryCount)
             {
+                Global.FuryGestureTimer.Stop();
                 ToggleIntentHit();
             }
         }
@@ -104,7 +109,7 @@ namespace AutoHitManager.Managers
 
         #region HookActions
 
-        [BindedFunction(Hook = "BeforeSceneLoadHook")]
+        [HookFunction(Hook = "BeforeSceneLoadHook")]
         private static string CheckScene(string name)
         {
             CheckCredits(name);
@@ -113,7 +118,7 @@ namespace AutoHitManager.Managers
             return name;
         }
 
-        [BindedFunction(Hook = "CharmUpdateHook")]
+        [HookFunction(Hook = "CharmUpdateHook")]
         private static void CheckFuryEquipped(PlayerData data, HeroController _)
         {
             Global.IsFuryEquipped = data.equippedCharm_6;
@@ -123,38 +128,20 @@ namespace AutoHitManager.Managers
             }
         }
 
-        //[BindedFunction(Hook = "ColliderCreateHook")]
-        //private static void checkDreamFall(GameObject obj)
-        //{
-        //    if (obj.name.ToLower() == "Dream Fall Catcher".ToLower())
-        //    {
-        //        PlayMakerFSM fsm = obj.LocateMyFSM("");
-        //        var dmg = obj.AddComponent<DamageHero>();
-        //        dmg.damageDealt = 0;
-        //        dmg.hazardType = 2;
-        //        dmg.shadowDashHazard = true;
-        //        foreach(var comp in obj.GetComponent<PolygonCollider2D>())
-        //        {
-
-        //        }
-        //        Global.Log(obj.layer);
-        //    }
-        //}
-
-        [BindedFunction(Hook = "AfterPlayerDeadHook")]
+        [HookFunction(Hook = "AfterPlayerDeadHook")]
         private static void EndRun()
         {
             Global.LocalSaveData.Run.RunConfig().History.Add(Global.LocalSaveData.Run);
-            Global.LocalSaveData.Run.Ended = true;
+            StartRun();
         }
 
-        [BindedFunction(Hook = "SavegameLoadHook")]
+        [HookFunction(Hook = "SavegameLoadHook")]
         private static void LoadRun(int _)
         {
             StartRun();
         }
 
-        [BindedFunction(Hook = "NewGameHook")]
+        [HookFunction(Hook = "NewGameHook")]
         private static void StartRun()
         {
             if (Global.LocalSaveData.NewRun)
@@ -170,24 +157,24 @@ namespace AutoHitManager.Managers
             Global.UpdateRunDataFile();
         }
 
-        [BindedFunction(Hook = "AfterTakeDamageHook")]
+        [HookFunction(Hook = "AfterTakeDamageHook")]
         private static int ManageHit(int hazardType, int dmg)
         {
-            if ((!Global.IntentionalHit || (Global.IntentionalHit && hazardType != 2)) && !PlayerData.instance.isInvincible)
+
+            Global.FuryTimer.Stop();
+            if (Global.IntentionalHit && (hazardType == 2 || hazardType == 3))
             {
-                Global.PerformHit();
-                Global.IntentionalHit = false;
-                Global.FuryTimer.Stop();
+                Global.FuryTimer.Start();
             }
             else
             {
-                Global.FuryTimer.Stop();
-                Global.FuryTimer.Start();
+                Global.PerformHit();
+                Global.IntentionalHit = false;
             }
             return dmg;
         }
 
-        [BindedFunction(Hook = "SetPlayerIntHook")]
+        [HookFunction(Hook = "SetPlayerIntHook")]
         private static int CheckPlayerHealth(string name, int orig)
         {
             if (name == "health")
@@ -211,11 +198,11 @@ namespace AutoHitManager.Managers
         private static void StartHooks()
         {
             var methods = Assembly.GetExecutingAssembly().GetTypes().SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic))
-                      .Where(m => m.GetCustomAttributes<BindedFunctionAttribute>(false).Any())
+                      .Where(m => m.GetCustomAttributes<HookFunctionAttribute>(false).Any())
                       .ToArray();
             foreach (var method in methods)
             {
-                var attr = method.GetCustomAttribute<BindedFunctionAttribute>();
+                var attr = method.GetCustomAttribute<HookFunctionAttribute>();
                 var eventHandler = typeof(ModHooks).GetEvent(attr.Hook);
                 var action = Delegate.CreateDelegate(eventHandler.EventHandlerType, method);
                 attr.Action = action;
@@ -226,11 +213,11 @@ namespace AutoHitManager.Managers
         internal static void EndHooks()
         {
             var methods = Assembly.GetExecutingAssembly().GetTypes().SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic))
-                      .Where(m => m.GetCustomAttributes<BindedFunctionAttribute>(false).Any())
+                      .Where(m => m.GetCustomAttributes<HookFunctionAttribute>(false).Any())
                       .ToArray();
             foreach (var method in methods)
             {
-                var attr = method.GetCustomAttribute<BindedFunctionAttribute>();
+                var attr = method.GetCustomAttribute<HookFunctionAttribute>();
                 var eventHandler = typeof(ModHooks).GetEvent(attr.Hook);
                 eventHandler.RemoveEventHandler(null, attr.Action);
             }
@@ -288,6 +275,16 @@ namespace AutoHitManager.Managers
             Global.FuryTimer.Elapsed += (sender, e) =>
             {
                 Global.IntentionalHit = false;
+            };
+            Global.FuryGestureTimer = new Timer
+            {
+                AutoReset = false,
+                Interval = 1_000
+            };
+            Global.FuryGestureTimer.Elapsed += (sender, e) =>
+            {
+                CountUp = 0;
+                CountDown = 0;
             };
 
             StartHooks();

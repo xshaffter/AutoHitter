@@ -30,6 +30,7 @@ namespace AutoHitManager.Cat
         internal static HitManagerSaveData LocalSaveData { get; set; } = new();
         internal static HitManagerGlobalSaveData GlobalSaveData { get; set; } = new();
         internal static Timer FuryTimer;
+        internal static Timer FuryGestureTimer;
         internal static bool IsProhibitedZone = false;
 
         public static bool IntentionalHit
