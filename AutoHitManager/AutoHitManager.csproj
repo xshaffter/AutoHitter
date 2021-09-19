@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
 		<AssemblyTitle>AutoHitManager</AssemblyTitle>
-		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<AssemblyVersion>1.2.0.0</AssemblyVersion>
 		<DebugType>portable</DebugType>
 		<Copyright>Copyright © 2021</Copyright>
 		<OutputPath>bin\$(Configuration)\</OutputPath>
