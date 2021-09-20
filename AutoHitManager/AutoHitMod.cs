@@ -19,7 +19,7 @@ using static AutoHitManager.Managers.BindableFunctions;
 
 namespace AutoHitManager
 {
-    public class AutoHitMod : Mod, ITogglableMod
+    public class AutoHitMod : Mod, ITogglableMod, ICustomMenuMod
     {
         internal static AutoHitMod LoadedInstance { get; set; }
 
@@ -86,8 +86,7 @@ namespace AutoHitManager
 
         public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
         {
-            this.Screen = AutoHitMenu.BuildMenu(modListMenu, toggleDelegates);
-            return this.Screen;
+            return AutoHitMenu.BuildMenu(modListMenu, toggleDelegates);
         }
     }
 }

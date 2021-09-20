@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using MenuButton = Modding.Patches.MenuButton;
 
 namespace MenuApiPlusPlus.Components
 {
@@ -47,9 +48,14 @@ namespace MenuApiPlusPlus.Components
 
             InputsLoaded.Add(config);
 
-            var submitAction = config.submitAction ?? defaultSubmit;
 
-            input.buttonType = MenuButton.MenuButtonType.CustomSubmit;
+            var submitAction = config.submitAction;
+            if (submitAction == null)
+            {
+                submitAction = defaultSubmit;
+            }
+
+            input.buttonType = (UnityEngine.UI.MenuButton.MenuButtonType)MenuButton.MenuButtonType.CustomSubmit;
             input.submitAction = submitAction;
             input.cancelAction = CancelAction.DoNothing;
             input.proceed = false;

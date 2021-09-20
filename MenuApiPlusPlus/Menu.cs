@@ -7,13 +7,13 @@ using UnityEngine.UI;
 
 namespace MenuApiPlusPlus
 {
-    public class Menu : MenuBuilder
+    public class MenuBuildernt : MenuBuilder
     {
-        public Menu(string name) : base(name)
+        public MenuBuildernt(string name) : base(name)
         {
         }
 
-        public Menu(GameObject canvas, string name) : base(canvas, name)
+        public MenuBuildernt(GameObject canvas, string name) : base(canvas, name)
         {
             
         }

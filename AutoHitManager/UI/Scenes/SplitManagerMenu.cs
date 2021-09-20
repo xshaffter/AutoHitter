@@ -1,4 +1,5 @@
 ﻿using AutoHitManager.Cat;
+using ModdingPlusPlus.Patches;
 using AutoHitManager.UI.Managers;
 using Modding.Menu;
 using Modding.Menu.Config;
@@ -7,7 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using MenuApiPlusPlus.Components;
@@ -177,7 +177,10 @@ namespace AutoHitManager.UI.Scenes
                             {
                                 Label = "Back",
                                 CancelAction = cancelAction,
-                                SubmitAction = cancelAction,
+                                SubmitAction = _ =>
+                                {
+                                    UIManager.instance.UIGoToDynamicMenu(previousScreen);
+                                },
                                 Style = MenuButtonStyle.VanillaStyle,
                                 Proceed = true
                             }

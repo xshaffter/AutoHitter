@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using AutoHitManager.Structure;
 using Modding;
-using Modding.Converters;
+using static Modding.Converters.PlayerActionSetConverter;
 using Newtonsoft.Json;
-using HitManagerSplits = System.Collections.Generic.List<AutoHitManager.Structure.Split>;
 
 namespace AutoHitManager.Cat
 {
     public class HitManagerGlobalSaveData : ModSettings
     {
-        [JsonConverter(typeof(PlayerActionSetConverter))]
+        [JsonConverter(typeof(Modding.Converters.PlayerActionSetConverter))]
         public AutoHitActionSet binds = new();
         public int MaxVisibleSplits = 10;
         public int NextId = 1;

@@ -13,16 +13,31 @@
 		<Copy SourceFiles="$(TargetPath);$(TargetDir)/$(TargetName).dll" DestinationFolder="$(HollowKnightRefs)/Mods/AutoHitManager/" />
 		<Copy SourceFiles="$(TargetPath);$(TargetDir)/$(TargetName).dll" DestinationFolder="$(HollowKnightRefs)/" />
 	</Target>
-  <ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MonoMod" Version="21.4.29.1">
+			<IncludeAssets>all</IncludeAssets>
+		</PackageReference>
+
+		<PackageReference Include="MonoMod.RuntimeDetour" Version="21.4.29.1">
+			<IncludeAssets>all</IncludeAssets>
+		</PackageReference>
+
+		<PackageReference Include="MonoMod.RuntimeDetour.HookGen" Version="21.4.29.1">
+			<IncludeAssets>all</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
 		<Reference Include="mscorlib" />
+		<Reference Include="GalaxyCSharp">
+			<HintPath>$(HollowKnightRefs)/GalaxyCSharp.dll</HintPath>
+		</Reference>
 		<Reference Include="Assembly-CSharp">
 			<HintPath>$(HollowKnightRefs)/Assembly-CSharp.dll</HintPath>
 		</Reference>
 		<Reference Include="Assembly-CSharp-firstpass">
 			<HintPath>$(HollowKnightRefs)/Assembly-CSharp-firstpass.dll</HintPath>
-		</Reference>
-		<Reference Include="GalaxyCSharp">
-			<HintPath>$(HollowKnightRefs)/GalaxyCSharp.dll</HintPath>
 		</Reference>
 		<Reference Include="MMHOOK_Assembly-CSharp">
 			<HintPath>$(HollowKnightRefs)/MMHOOK_Assembly-CSharp.dll</HintPath>
@@ -44,9 +59,6 @@
 		</Reference>
 		<Reference Include="netstandard">
 			<HintPath>$(HollowKnightRefs)/netstandard.dll</HintPath>
-		</Reference>
-		<Reference Include="Newtonsoft.Json">
-			<HintPath>$(HollowKnightRefs)/Newtonsoft.Json.dll</HintPath>
 		</Reference>
 		<Reference Include="PlayMaker">
 			<HintPath>$(HollowKnightRefs)/PlayMaker.dll</HintPath>

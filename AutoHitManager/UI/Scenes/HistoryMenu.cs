@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -102,7 +101,10 @@ namespace AutoHitManager.UI.Scenes
                            {
                                Label = "Back",
                                CancelAction = cancelAction,
-                               SubmitAction = cancelAction,
+                               SubmitAction = _ =>
+                               {
+                                   UIManager.instance.UIGoToDynamicMenu(previousScreen);
+                               },
                                Style = MenuButtonStyle.VanillaStyle,
                                Proceed = true
                            }

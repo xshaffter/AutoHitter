@@ -41,9 +41,6 @@
 		<Reference Include="GalaxyCSharp">
 			<HintPath>$(HollowKnightRefs)/GalaxyCSharp.dll</HintPath>
 		</Reference>
-		<Reference Include="MenuApiPlusPlus">
-		  <HintPath>$(HollowKnightRefs)/MenuApiPlusPlus.dll</HintPath>
-		</Reference>
 		<Reference Include="MMHOOK_Assembly-CSharp">
 			<HintPath>$(HollowKnightRefs)/MMHOOK_Assembly-CSharp.dll</HintPath>
 		</Reference>
@@ -304,5 +301,8 @@
 	<ItemGroup>
 		<None Include=".gitignore" />
 		<None Include="ReadMe.md" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\MenuApiPlusPlus\MenuApiPlusPlus.csproj" />
 	</ItemGroup>
 </Project>
