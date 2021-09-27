@@ -17,8 +17,8 @@ namespace AutoHitManager.Cat
         public List<Split> SplitInfo()
         {
             var index = 0;
-            return RunConfig().Splits.Select(split => {
-                var usedSplit = Splits.Find(info => info.splitID == split.Id);
+            return RunConfig()?.Splits?.Select(split => {
+                var usedSplit = Splits?.Find(info => info.splitID == split.Id);
                 if (usedSplit == null)
                 {
                     usedSplit = new Split
@@ -31,8 +31,7 @@ namespace AutoHitManager.Cat
                 return new Split
                 {
                     Hits = usedSplit.Hits,
-                    splitID = split.Id,
-                    _index = index++
+                    splitID = split.Id
                 };
             }).ToList();
         }

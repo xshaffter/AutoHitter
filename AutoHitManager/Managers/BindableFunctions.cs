@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace AutoHitManager.Managers
 {
@@ -146,6 +147,10 @@ namespace AutoHitManager.Managers
         {
             if (Global.LocalSaveData.NewRun)
             {
+                var skip_info = Global.GlobalSaveData.SkipTutorials == "Yes";
+                PlayerData.instance.hasSpell = skip_info;
+                PlayerData.instance.charmBenchMsg = skip_info;
+                PlayerData.instance.hasCharm = skip_info;
                 Global.LocalSaveData.Run = new()
                 {
                     RunConfigId = Global.GlobalSaveData.ActualRun().Id,
@@ -153,6 +158,10 @@ namespace AutoHitManager.Managers
                     Ended = false
                 };
                 Global.LocalSaveData.NewRun = false;
+            }
+            if (Global.LocalSaveData.Run.RunConfig() == null)
+            {
+                Global.LocalSaveData.Run.RunConfigId = Global.GlobalSaveData.ActualRun().Id;
             }
             Global.UpdateRunDataFile();
         }
@@ -221,7 +230,6 @@ namespace AutoHitManager.Managers
                 var eventHandler = typeof(ModHooks).GetEvent(attr.Hook);
                 eventHandler.RemoveEventHandler(null, attr.Action);
             }
-
         }
 
         private static void StartRunInfo()
@@ -286,6 +294,8 @@ namespace AutoHitManager.Managers
                 CountUp = 0;
                 CountDown = 0;
             };
+
+
 
             StartHooks();
             StartRunInfo();

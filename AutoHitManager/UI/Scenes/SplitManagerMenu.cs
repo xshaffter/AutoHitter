@@ -97,6 +97,7 @@ namespace AutoHitManager.UI.Scenes
                                     PostEnterAction = config =>
                                     {
                                         split.Name = config.Text;
+                                        Global.UpdateRunDataFile();
                                     }
                                 };
                                 scroll.AddTextInput(

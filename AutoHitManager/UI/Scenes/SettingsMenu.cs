@@ -21,6 +21,7 @@ namespace AutoHitManager.UI.Scenes
             var MaxSplitOptions = new string[] { "5", "10", "15", "20", "25", "30" };
             void cancelAction(MenuSelectable _)
             {
+                Global.UpdateRunDataFile();
                 UIManager.instance.UIGoToDynamicMenu(previousScreen);
             }
             return new MenuBuilder(UIManager.instance.UICanvas.gameObject, "AutoHitSettings")
@@ -61,12 +62,12 @@ namespace AutoHitManager.UI.Scenes
                                 ApplySetting = (_, i) =>
                                 {
                                     Global.GlobalSaveData.MaxVisibleSplits = int.Parse(MaxSplitOptions[i]);
+                                    Global.UpdateRunDataFile();
                                 },
                                 RefreshSetting = (self, _) =>
                                 {
                                     int index = MaxSplitOptions.ToList().IndexOf(Global.GlobalSaveData.MaxVisibleSplits.ToString());
                                     self.optionList.SetOptionTo(index);
-                                    Global.UpdateRunDataFile();
                                 }
                             },
                             out var maxSplitOption
@@ -113,10 +114,33 @@ namespace AutoHitManager.UI.Scenes
                                 {
                                     int index = boolOptions.ToList().IndexOf(Global.PracticeMode);
                                     self.optionList.SetOptionTo(index);
-                                    Global.UpdateRunDataFile();
                                 }
                             },
                             out var practiceMode
+                        ).AddHorizontalOption(
+                            "SkipTutorials",
+                            new HorizontalOptionConfig
+                            {
+                                Label = "Skip tutorials",
+                                CancelAction = cancelAction,
+                                Options = boolOptions,
+                                Description = new DescriptionInfo
+                                {
+                                    Style = DescriptionStyle.HorizOptionSingleLineVanillaStyle,
+                                    Text = "Max visible splits in your OBS widget"
+                                },
+                                ApplySetting = (_, i) =>
+                                {
+                                    Global.GlobalSaveData.SkipTutorials = boolOptions[i];
+                                },
+                                RefreshSetting = (self, _) =>
+                                {
+                                    int index = boolOptions.ToList().IndexOf(Global.GlobalSaveData.SkipTutorials);
+                                    self.optionList.SetOptionTo(index);
+                                    Global.UpdateRunDataFile();
+                                }
+                            },
+                            out var skipTutorialsOption
                         )
                         .AddKeybind(
                             "PrevSplit",
@@ -149,6 +173,7 @@ namespace AutoHitManager.UI.Scenes
                         maxSplitOption.GetComponent<MenuSetting>().RefreshValueFromGameSettings();
                         practiceMode.GetComponent<MenuSetting>().RefreshValueFromGameSettings();
                         furyCountOption.GetComponent<MenuSetting>().RefreshValueFromGameSettings();
+                        skipTutorialsOption.GetComponent<MenuSetting>().RefreshValueFromGameSettings();
                     }
                 )
                 .AddControls(

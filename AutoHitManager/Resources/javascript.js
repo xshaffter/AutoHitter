@@ -71,7 +71,7 @@ function doUpdateData(total_info, splits, run_data) {
                 row.classList.add("current-split");
             }
             if (split.split <= run_data.split) {
-                if (split.Diff <= 0 && split.Hits > 0) {
+                if (split.Diff >= 0 && split.Hits > 0) {
                     row.classList.add("bad-split");
                 } else if (split.split < run_data.split){
                     row.classList.add("good-split");
@@ -86,7 +86,8 @@ function doUpdateData(total_info, splits, run_data) {
             name.innerHTML = split.Name;
             now.innerHTML = split.Hits;
             if (split.split <= run_data.split) {
-                diff.innerHTML = split.Diff > 0 ? `+${split.Diff}` : split.Diff;
+                let diffCount = split.Diff > 0 ? `+${split.Diff}` : split.Diff;
+                diff.innerHTML = `${diffCount} (${split.PrevDiff})`;
             } else {
                 diff.innerHTML = '-';
             }

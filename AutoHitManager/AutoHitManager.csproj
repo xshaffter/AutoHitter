@@ -16,7 +16,7 @@
 		<MakeDir Condition="!Exists('$(HollowKnightRefs)/Mods/$(TargetName)/')" Directories="$(HollowKnightRefs)/Mods/$(TargetName)/" />
 		<Copy SourceFiles="$(TargetPath);$(TargetDir)/$(TargetName).pdb" DestinationFolder="$(HollowKnightRefs)/Mods/$(TargetName)/" />
 		<Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ExportDir)/$(TargetName)/" />
-		<Copy SourceFiles="ReadMe.md;$(TargetPath);$(TargetDir)/$(TargetName).pdb" DestinationFolder="$(ExportDir)/$(TargetName)/zip/" />
+		<Copy SourceFiles="ReadMe.md;$(TargetPath);$(TargetDir)/$(TargetName).pdb;$(TargetDir)/MenuApiPlusPlus.dll" DestinationFolder="$(ExportDir)/$(TargetName)/zip/" />
 		<ZipDirectory SourceDirectory="$(ExportDir)/$(TargetName)/zip/" DestinationFile="$(ExportDir)/$(TargetName)/$(TargetName).zip" />
 		<RemoveDir Directories="$(ExportDir)/$(TargetName)/zip/" />
 
@@ -25,6 +25,9 @@
 		</GetFileHash>
 		<WriteLinesToFile File="$(ExportDir)/$(TargetName)/SHA.txt" Lines="@(FilesWithHashes->'%(FileHash)')" Overwrite="true" Encoding="UTF-8" />
 	</Target>
+	<ItemGroup>
+	  <None Remove="Resources\all_bindings.png" />
+	</ItemGroup>
 	<ItemGroup>
 	  <EmbeddedResource Include="Resources\Design.html" />
 	  <EmbeddedResource Include="Resources\fotf.png" />
@@ -42,7 +45,7 @@
 			<HintPath>$(HollowKnightRefs)/GalaxyCSharp.dll</HintPath>
 		</Reference>
 		<Reference Include="MenuApiPlusPlus">
-		  <HintPath>$(HollowKnightRefs)/MenuApiPlusPlus.dll</HintPath>
+		  <HintPath>$(HollowKnightRefs)/Mods/$(TargetName)/MenuApiPlusPlus.dll</HintPath>
 		</Reference>
 		<Reference Include="MMHOOK_Assembly-CSharp">
 			<HintPath>$(HollowKnightRefs)/MMHOOK_Assembly-CSharp.dll</HintPath>
@@ -304,5 +307,8 @@
 	<ItemGroup>
 		<None Include=".gitignore" />
 		<None Include="ReadMe.md" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Resource Include="Resources\all_bindings.png" />
 	</ItemGroup>
 </Project>

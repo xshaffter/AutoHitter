@@ -69,7 +69,7 @@ namespace AutoHitManager.Cat
 
         public static List<T> PaginateList<T>(List<T> list, int actualIndex, int pageSize)
         {
-            if (pageSize >= list.Count)
+            if (pageSize >= (list?.Count ?? 0))
             {
                 return list;
             }
@@ -96,41 +96,46 @@ namespace AutoHitManager.Cat
 
         public static void UpdateRunDataFile()
         {
-            List<string> data;
-            int total_hits;
-            int total_pb;
-            string run_data;
-            if (LocalSaveData.Run.Splits.Count > 0)
+            try
             {
-                data = PaginateList(LocalSaveData.Run.SplitInfo(), LocalSaveData.CurrentSplit, MaxVisibleSplits).Select(item => item.ToString()).ToList();
-                total_hits = LocalSaveData.Run.Hits();
-                total_pb = LocalSaveData.Run?.RunConfig()?.PB?.Hits() ?? GlobalSaveData.ActualRun()?.PB?.Hits() ?? 0;
-                run_data = $"{{practice: {(PracticeMode == "Yes").ToString().ToLower()},split:{LocalSaveData.CurrentSplit}, split_count:{LocalSaveData.Run.SplitInfo().Count()}, run: {LocalSaveData.Run.number}, fury: {IntentionalHit.ToString().ToLower()}}}";
-            }
-            else
-            {
-                var index = 0;
-                var fake_splits = GlobalSaveData.ActualRun().Splits.Select(config => new Split
+                List<string> data;
+                int total_hits;
+                int total_pb;
+                string run_data;
+                if ((LocalSaveData?.Run?.Splits?.Count ?? 0) > 0)
                 {
-                    Hits = 0,
-                    splitID = config.Id,
-                    _index = index++
-                }).ToList();
-                LocalSaveData.Run.Splits = fake_splits;
-                data = PaginateList(fake_splits, 0, MaxVisibleSplits).Select(item => item.ToString()).ToList();
-                total_hits = 0;
-                total_pb = GlobalSaveData.ActualRun()?.PB?.Hits() ?? 0;
-                run_data = $"{{practice: {(PracticeMode == "Yes").ToString().ToLower()},split:-1, split_count:{fake_splits.Count()}, run: {LocalSaveData.Run.number}, fury: {IntentionalHit.ToString().ToLower()}}}";
+                    data = PaginateList(LocalSaveData.Run.SplitInfo(), LocalSaveData.CurrentSplit, MaxVisibleSplits).Select(item => item.ToString()).ToList();
+                    total_hits = LocalSaveData.Run.Hits();
+                    total_pb = LocalSaveData.Run?.RunConfig()?.PB?.Hits() ?? GlobalSaveData.ActualRun()?.PB?.Hits() ?? 0;
+                    run_data = $"{{practice: {(PracticeMode == "Yes").ToString().ToLower()},split:{LocalSaveData.CurrentSplit}, split_count:{LocalSaveData.Run.SplitInfo().Count()}, run: {LocalSaveData.Run.number}, fury: {IntentionalHit.ToString().ToLower()}}}";
+                }
+                else
+                {
+                    var fake_splits = GlobalSaveData.ActualRun().Splits.Select(config => new Split
+                    {
+                        Hits = 0,
+                        splitID = config.Id
+                    }).ToList();
+                    LocalSaveData.Run.Splits = fake_splits;
+                    data = PaginateList(fake_splits, 0, MaxVisibleSplits).Select(item => item.ToString()).ToList();
+                    total_hits = 0;
+                    total_pb = GlobalSaveData.ActualRun()?.PB?.Hits() ?? 0;
+                    run_data = $"{{practice: {(PracticeMode == "Yes").ToString().ToLower()},split:-1, split_count:{fake_splits.Count()}, run: {LocalSaveData.Run?.number ?? 0}, fury: {IntentionalHit.ToString().ToLower()}}}";
+                }
+                string splits_data = $"[{string.Join(",", data)}]";
+                string total_data = new Split
+                {
+                    ForcedPB = total_pb,
+                    Hits = total_hits,
+                    ForcedName = "Total:"
+                }.ToString();
+                string html_text = string.Format(Constants.HTML, run_data, splits_data, total_data);
+                File.WriteAllText(Path.Combine(Constants.DirFolder, "run_data.html"), html_text);
             }
-            string splits_data = $"[{string.Join(",", data)}]";
-            string total_data = new Split
+            catch (Exception ex)
             {
-                ForcedPB = total_pb,
-                Hits = total_hits,
-                ForcedName = "Total:"
-            }.ToString();
-            string html_text = string.Format(Constants.HTML, run_data, splits_data, total_data);
-            File.WriteAllText(Path.Combine(Constants.DirFolder, "run_data.html"), html_text);
+                Global.Log(ex);
+            }
         }
 
         public static void PerformHit()
@@ -153,7 +158,7 @@ namespace AutoHitManager.Cat
         {
             get
             {
-                return LocalSaveData.Run.Splits[LocalSaveData.CurrentSplit];
+                return LocalSaveData.Run.Splits.Find(split => split.GetIndex() == LocalSaveData.CurrentSplit);
             }
         }
 

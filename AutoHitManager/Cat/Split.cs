@@ -9,7 +9,6 @@ namespace AutoHitManager.Structure
     public class Split
     {
         public string ForcedName = null;
-        public int _index = -2;
         public int splitID = 0;
         public int Hits = 0;
         public int? ForcedPB = null;
@@ -30,10 +29,10 @@ namespace AutoHitManager.Structure
 
         public SplitConfig Config()
         {
-            return this.Run().Splits.Find(config => config.Id == this.splitID);
+            return Global.GlobalSaveData.Runs.SelectMany(run => run.Splits).ToList().Find(split => split.Id == this.splitID);
         }
 
-        public string Name() 
+        public string Name()
         {
             if (ForcedName != null)
             {
@@ -48,15 +47,11 @@ namespace AutoHitManager.Structure
         }
         public int Diff()
         {
-            return (PB() ?? 0) - Hits;
+            return Hits - (PB() ?? 0);
         }
         public int GetIndex()
         {
-            if (_index == -2)
-            {
-                _index = Run().Splits.IndexOf(Config());
-            }
-            return _index;
+            return Run()?.Splits?.IndexOf(Config()) ?? 0;
         }
         public int GetPrevious()
         {
@@ -73,10 +68,37 @@ namespace AutoHitManager.Structure
             }
             return previous ?? 0;
         }
+        public int GetPreviousHits()
+        {
+            int previous;
+            try
+            {
+                previous = Global.LocalSaveData.Run.Splits.Where(split => split.GetIndex() <= GetIndex()).Sum(split => split.Hits);
+            }
+            catch
+            {
+                previous = 0;
+            }
+            return previous;
+        }
+
+        public int GetPreviousDiff()
+        {
+            int diff;
+            try
+            {
+                diff = GetPreviousHits() - GetPrevious() - (PBSplit()?.Hits ?? 0);
+            }
+            catch
+            {
+                diff = 0;
+            }
+            return diff;
+        }
 
         public override string ToString()
         {
-            return $"{{Name:\"{Name()}\", Hits:{Hits}, PB:\"{PB()?.ToString() ?? "-"} ({GetPrevious()})\", Diff:{Diff()}, split: {_index}}}";
+            return $"{{Name:\"{Name()}\", Hits:\"{Hits} ({GetPreviousHits()})\", PB:\"{PB()?.ToString() ?? "-"} ({GetPrevious()})\", Diff:{Diff()}, PrevDiff: {GetPreviousDiff()}, split: {GetIndex()}}}";
         }
     }
 }

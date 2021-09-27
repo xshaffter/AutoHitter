@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using AutoHitManager.Structure;
 
-using HitManagerSplits = System.Collections.Generic.List<AutoHitManager.Structure.Split>;
-
 namespace AutoHitManager.Cat
 {
     public class HitManagerSaveData
@@ -13,6 +11,9 @@ namespace AutoHitManager.Cat
         public int CurrentSplit = 0;
         public Run Run = new();
         public bool NewRun = true;
-
+        public List<bool> gotCharms = new List<bool>() { true };
+        public List<bool> newCharms = new List<bool>() { false };
+        public List<bool> equippedCharms = new List<bool>() { false };
+        public List<int> charmCosts = new List<int>() { 1 };
     }
 }
